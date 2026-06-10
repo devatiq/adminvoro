@@ -27,6 +27,7 @@ class NexiSettings_Login {
 		$this->options = NexiSettings::get_options();
 
 		add_action( 'init', array( $this, 'add_rewrite_rule' ) );
+		add_action( 'init', array( $this, 'maybe_block_wp_admin' ), 1 );
 		add_action( 'parse_request', array( $this, 'maybe_load_custom_login' ), 0 );
 		add_action( 'login_init', array( $this, 'maybe_block_wp_login' ), 0 );
 		add_filter( 'login_url', array( $this, 'filter_login_url' ), 10, 3 );
@@ -99,6 +100,28 @@ class NexiSettings_Login {
 		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '';
 
 		if ( false === strpos( $script_name, 'wp-login.php' ) && false === strpos( $request_uri, 'wp-login.php' ) ) {
+			return;
+		}
+
+		$this->handle_blocked_login_request();
+	}
+
+	/**
+	 * Block direct wp-admin access for logged-out users.
+	 *
+	 * WordPress normally redirects /wp-admin to the login URL. When a custom login
+	 * slug is active, that would expose the custom login path, so block it first.
+	 *
+	 * @return void
+	 */
+	public function maybe_block_wp_admin() {
+		if ( ! $this->is_custom_login_enabled() || is_user_logged_in() ) {
+			return;
+		}
+
+		$request_path = strtolower( $this->get_request_path() );
+
+		if ( ! $this->is_wp_admin_request_path( $request_path ) || $this->is_allowed_admin_endpoint( $request_path ) ) {
 			return;
 		}
 
@@ -291,6 +314,31 @@ class NexiSettings_Login {
 			esc_html__( 'Not Found', 'nexisettings' ),
 			array( 'response' => 404 )
 		);
+	}
+
+	/**
+	 * Determine whether a normalized request path targets wp-admin.
+	 *
+	 * @param string $request_path Normalized request path.
+	 * @return bool
+	 */
+	private function is_wp_admin_request_path( $request_path ) {
+		return 'wp-admin' === $request_path || 0 === strpos( $request_path, 'wp-admin/' );
+	}
+
+	/**
+	 * Keep operational admin endpoints available to WordPress.
+	 *
+	 * @param string $request_path Normalized request path.
+	 * @return bool
+	 */
+	private function is_allowed_admin_endpoint( $request_path ) {
+		$allowed_endpoints = array(
+			'wp-admin/admin-ajax.php',
+			'wp-admin/admin-post.php',
+		);
+
+		return in_array( $request_path, $allowed_endpoints, true );
 	}
 
 	/**
