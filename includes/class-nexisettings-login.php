@@ -199,8 +199,9 @@ class NexiSettings_Login {
 		$text_color       = $this->get_hex_option( 'login_text_color' );
 		$link_color       = $this->get_hex_option( 'login_link_color' );
 		$text_size        = $this->get_login_message_text_size();
+		$has_message      = '' !== trim( (string) $this->options['login_logo_text'] );
 
-		if ( empty( $logo_url ) && empty( $background_color ) && empty( $text_color ) && empty( $link_color ) && 18 === $text_size ) {
+		if ( empty( $logo_url ) && empty( $background_color ) && empty( $text_color ) && empty( $link_color ) && ! $has_message && 18 === $text_size ) {
 			return;
 		}
 
