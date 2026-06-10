@@ -73,6 +73,11 @@
 
 			$.each(options, function (key, value) {
 				var $fields = $('[name="nexisettings_options[' + key + ']"]');
+				var colorDefaults = {
+					login_background_color: '#f0f0f1',
+					login_text_color: '#3c434a',
+					login_link_color: '#2271b1'
+				};
 
 				if (!$fields.length) {
 					return;
@@ -81,6 +86,10 @@
 				if ($fields.first().is(':checkbox')) {
 					$fields.prop('checked', value === true || value === 1 || value === '1');
 					return;
+				}
+
+				if ($fields.first().is('[type="color"]') && !value && colorDefaults[key]) {
+					value = colorDefaults[key];
 				}
 
 				$fields.val(value);

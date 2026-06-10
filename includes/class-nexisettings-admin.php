@@ -447,15 +447,23 @@ class NexiSettings_Admin {
 	 */
 	private function sanitize_login_branding_options( $input, $output ) {
 		if ( ! empty( $input['reset_login_branding'] ) ) {
-			$output['login_logo_id']   = 0;
-			$output['login_logo_url']  = '';
-			$output['login_logo_text'] = '';
+			$output['login_logo_id']          = 0;
+			$output['login_logo_url']         = '';
+			$output['login_logo_text']        = '';
+			$output['login_background_color'] = '';
+			$output['login_text_color']       = '';
+			$output['login_link_color']       = '';
+			$output['login_logo_text_size']   = 18;
 			return $output;
 		}
 
-		$output['login_logo_id']   = isset( $input['login_logo_id'] ) ? absint( $input['login_logo_id'] ) : 0;
-		$output['login_logo_url']  = isset( $input['login_logo_url'] ) ? esc_url_raw( $input['login_logo_url'] ) : '';
-		$output['login_logo_text'] = isset( $input['login_logo_text'] ) ? wp_kses_post( $input['login_logo_text'] ) : '';
+		$output['login_logo_id']          = isset( $input['login_logo_id'] ) ? absint( $input['login_logo_id'] ) : 0;
+		$output['login_logo_url']         = isset( $input['login_logo_url'] ) ? esc_url_raw( $input['login_logo_url'] ) : '';
+		$output['login_logo_text']        = isset( $input['login_logo_text'] ) ? wp_kses_post( $input['login_logo_text'] ) : '';
+		$output['login_background_color'] = isset( $input['login_background_color'] ) ? $this->sanitize_hex_color_field( $input['login_background_color'] ) : '';
+		$output['login_text_color']       = isset( $input['login_text_color'] ) ? $this->sanitize_hex_color_field( $input['login_text_color'] ) : '';
+		$output['login_link_color']       = isset( $input['login_link_color'] ) ? $this->sanitize_hex_color_field( $input['login_link_color'] ) : '';
+		$output['login_logo_text_size']   = isset( $input['login_logo_text_size'] ) ? $this->sanitize_login_text_size( $input['login_logo_text_size'] ) : 18;
 
 		return $output;
 	}
@@ -533,6 +541,42 @@ class NexiSettings_Admin {
 		}
 
 		return esc_url_raw( $url );
+	}
+
+	/**
+	 * Sanitize a hex color field.
+	 *
+	 * @param mixed $color Submitted color.
+	 * @return string
+	 */
+	private function sanitize_hex_color_field( $color ) {
+		if ( ! is_scalar( $color ) ) {
+			return '';
+		}
+
+		$color = sanitize_hex_color( wp_unslash( $color ) );
+
+		return is_string( $color ) ? $color : '';
+	}
+
+	/**
+	 * Sanitize custom login text size.
+	 *
+	 * @param mixed $size Submitted size.
+	 * @return int
+	 */
+	private function sanitize_login_text_size( $size ) {
+		$size = absint( $size );
+
+		if ( $size < 12 ) {
+			return 12;
+		}
+
+		if ( $size > 48 ) {
+			return 48;
+		}
+
+		return $size;
 	}
 
 	/**
@@ -802,6 +846,32 @@ class NexiSettings_Admin {
 					<textarea name="<?php echo esc_attr( NEXISETTINGS_OPTION ); ?>[login_logo_text]" rows="4"><?php echo esc_textarea( $options['login_logo_text'] ); ?></textarea>
 					<small><?php esc_html_e( 'Basic formatting is allowed. Unsafe HTML is removed when saved.', 'nexisettings' ); ?></small>
 				</label>
+
+				<div class="nexisettings-branding-grid">
+					<label class="nexisettings-field">
+						<span><?php esc_html_e( 'Login background color', 'nexisettings' ); ?></span>
+						<input type="color" name="<?php echo esc_attr( NEXISETTINGS_OPTION ); ?>[login_background_color]" value="<?php echo esc_attr( ! empty( $options['login_background_color'] ) ? $options['login_background_color'] : '#f0f0f1' ); ?>" />
+						<small><?php esc_html_e( 'Changes the login page background while keeping the form box white.', 'nexisettings' ); ?></small>
+					</label>
+
+					<label class="nexisettings-field">
+						<span><?php esc_html_e( 'Outside text color', 'nexisettings' ); ?></span>
+						<input type="color" name="<?php echo esc_attr( NEXISETTINGS_OPTION ); ?>[login_text_color]" value="<?php echo esc_attr( ! empty( $options['login_text_color'] ) ? $options['login_text_color'] : '#3c434a' ); ?>" />
+						<small><?php esc_html_e( 'Applies to text outside the login form, including your custom message.', 'nexisettings' ); ?></small>
+					</label>
+
+					<label class="nexisettings-field">
+						<span><?php esc_html_e( 'Outside link color', 'nexisettings' ); ?></span>
+						<input type="color" name="<?php echo esc_attr( NEXISETTINGS_OPTION ); ?>[login_link_color]" value="<?php echo esc_attr( ! empty( $options['login_link_color'] ) ? $options['login_link_color'] : '#2271b1' ); ?>" />
+						<small><?php esc_html_e( 'Applies to links outside the login form.', 'nexisettings' ); ?></small>
+					</label>
+
+					<label class="nexisettings-field">
+						<span><?php esc_html_e( 'Text below logo size', 'nexisettings' ); ?></span>
+						<input type="number" min="12" max="48" step="1" name="<?php echo esc_attr( NEXISETTINGS_OPTION ); ?>[login_logo_text_size]" value="<?php echo esc_attr( absint( $options['login_logo_text_size'] ) ); ?>" />
+						<small><?php esc_html_e( 'Controls the custom message size in pixels. The message is centered automatically.', 'nexisettings' ); ?></small>
+					</label>
+				</div>
 			</div>
 
 			<?php submit_button( esc_html__( 'Save Login Branding', 'nexisettings' ), 'primary', 'submit', false ); ?>
