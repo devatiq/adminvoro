@@ -228,6 +228,7 @@
 
 .nexisettings-field input[type="text"],
 .nexisettings-field input[type="url"],
+.nexisettings-field input[type="number"],
 .nexisettings-field select,
 .nexisettings-field textarea,
 .nexisettings-redirects-table input[type="text"],
@@ -241,6 +242,16 @@
 
 .nexisettings-field textarea {
 	padding: 10px 12px;
+}
+
+.nexisettings-field input[type="color"] {
+	border: 1px solid #c3c4c7;
+	border-radius: 10px;
+	box-shadow: none;
+	cursor: pointer;
+	height: 42px;
+	padding: 3px;
+	width: 100%;
 }
 
 .nexisettings-field small,
@@ -387,6 +398,18 @@
 	gap: 8px;
 }
 
+.nexisettings-branding-grid {
+	display: grid;
+	gap: 18px;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	margin-top: 4px;
+	max-width: 760px;
+}
+
+.nexisettings-branding-grid .nexisettings-field {
+	margin-top: 18px;
+}
+
 .nexisettings-table-wrap {
 	overflow-x: auto;
 }
@@ -435,5 +458,9 @@
 	.nexisettings-prefix-input span {
 		border-bottom: 0 !important;
 		min-height: 38px;
+	}
+
+	.nexisettings-branding-grid {
+		grid-template-columns: 1fr;
 	}
 }
