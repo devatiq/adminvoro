@@ -124,6 +124,7 @@ final class NexiSettings {
 			'enable_custom_login'          => 0,
 			'custom_login_slug'           => '',
 			'login_block_action'          => '404',
+			'login_block_custom_url'      => '',
 			'login_logo_id'               => 0,
 			'login_logo_url'              => '',
 			'login_logo_text'             => '',

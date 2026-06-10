@@ -92,6 +92,58 @@
 	margin-bottom: 32px;
 }
 
+.nexisettings-notices {
+	margin: 0 0 18px;
+	max-width: 960px;
+}
+
+.nexisettings-notices:empty {
+	display: none;
+}
+
+.nexisettings-notices .notice,
+.nexisettings-notice {
+	border-radius: 10px;
+	box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+	margin: 0 0 12px;
+	padding: 4px 12px;
+}
+
+.nexisettings-notices .notice-error,
+.nexisettings-notice.notice-error {
+	background: #fef2f2;
+	border-left-color: #dc2626;
+	color: #7f1d1d;
+}
+
+.nexisettings-notices .notice-warning,
+.nexisettings-notice.notice-warning {
+	background: #fffbeb;
+	border-left-color: #d97706;
+	color: #78350f;
+}
+
+.nexisettings-notices .updated,
+.nexisettings-notices .notice-success,
+.nexisettings-notice.notice-success,
+.nexisettings-notice.updated {
+	background: #ecfdf3;
+	border-left-color: #16a34a;
+	color: #14532d;
+}
+
+.nexisettings-notices .notice-info,
+.nexisettings-notice.notice-info {
+	background: #eff6ff;
+	border-left-color: #2563eb;
+	color: #1e3a8a;
+}
+
+.nexisettings-notices .notice p,
+.nexisettings-notice p {
+	font-weight: 600;
+}
+
 .nexisettings-form .submit {
 	margin-top: 18px;
 	padding-bottom: 0;
@@ -159,6 +211,10 @@
 	display: block;
 	margin: 22px 0 0;
 	max-width: 760px;
+}
+
+.nexisettings-field.is-hidden {
+	display: none;
 }
 
 .nexisettings-field > span,

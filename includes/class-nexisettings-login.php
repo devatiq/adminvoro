@@ -279,8 +279,8 @@ class NexiSettings_Login {
 			exit;
 		}
 
-		if ( 'custom' === $action ) {
-			wp_safe_redirect( $this->get_custom_login_url(), 302 );
+		if ( 'custom_url' === $action && ! empty( $this->options['login_block_custom_url'] ) ) {
+			wp_safe_redirect( $this->options['login_block_custom_url'], 302 );
 			exit;
 		}
 
