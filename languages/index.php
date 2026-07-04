@@ -2,5 +2,5 @@
 /**
  * Silence is golden.
  *
- * @package NexiSettings
+ * @package Adminvoro
  */

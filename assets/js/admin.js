@@ -5,7 +5,7 @@
 		var frame;
 
 		function showNotices(html) {
-			var $notices = $('.nexisettings-notices');
+			var $notices = $('.adminvoro-notices');
 
 			if (!$notices.length) {
 				return;
@@ -15,8 +15,8 @@
 		}
 
 		function toggleCustomBlockUrlField() {
-			var $select = $('select[name="nexisettings_options[login_block_action]"]');
-			var $field = $('.nexisettings-custom-block-url-field');
+			var $select = $('select[name="adminvoro_options[login_block_action]"]');
+			var $field = $('.adminvoro-custom-block-url-field');
 			var isCustom = $select.val() === 'custom_url';
 
 			$field.toggleClass('is-hidden', !isCustom);
@@ -39,9 +39,9 @@
 				}
 
 				if ($primaryButton.is('input')) {
-					$primaryButton.val(nexiSettingsAdmin.saving);
+					$primaryButton.val(adminvoroSettingsAdmin.saving);
 				} else {
-					$primaryButton.text(nexiSettingsAdmin.saving);
+					$primaryButton.text(adminvoroSettingsAdmin.saving);
 				}
 			} else if (typeof $primaryButton.data('original-label') !== 'undefined') {
 				if ($primaryButton.is('input')) {
@@ -72,7 +72,7 @@
 			}
 
 			$.each(options, function (key, value) {
-				var $fields = $('[name="nexisettings_options[' + key + ']"]');
+				var $fields = $('[name="adminvoro_options[' + key + ']"]');
 				var colorDefaults = {
 					login_background_color: '#f0f0f1',
 					login_text_color: '#3c434a',
@@ -96,12 +96,12 @@
 			});
 
 			if (responseData && typeof responseData.currentLoginHtml !== 'undefined') {
-				$('.nexisettings-current-login-wrap').html(responseData.currentLoginHtml);
+				$('.adminvoro-current-login-wrap').html(responseData.currentLoginHtml);
 			}
 
 			if (responseData && typeof responseData.logoUrl !== 'undefined') {
 				if (responseData.logoUrl) {
-					$('.nexisettings-logo-preview')
+					$('.adminvoro-logo-preview')
 						.removeClass('is-empty')
 						.empty()
 						.append($('<img />', {
@@ -109,32 +109,32 @@
 							alt: ''
 						}));
 				} else {
-					$('.nexisettings-logo-preview')
+					$('.adminvoro-logo-preview')
 						.addClass('is-empty')
-						.html('<span>' + nexiSettingsAdmin.noLogo + '</span>');
+						.html('<span>' + adminvoroSettingsAdmin.noLogo + '</span>');
 				}
 			}
 
 			toggleCustomBlockUrlField();
 		}
 
-		$(document).on('click', '.nexisettings-form :submit', function () {
+		$(document).on('click', '.adminvoro-form :submit', function () {
 			$(this).closest('form').data('clicked-submit', this);
 		});
 
-		$('.nexisettings-options-form').on('submit', function (event) {
+		$('.adminvoro-options-form').on('submit', function (event) {
 			var $form = $(this);
 			var data;
 
 			event.preventDefault();
 
-			data = getSerializedFormData($form) + '&action=nexisettings_save_options&nonce=' + encodeURIComponent(nexiSettingsAdmin.nonce);
+			data = getSerializedFormData($form) + '&action=adminvoro_save_options&nonce=' + encodeURIComponent(adminvoroSettingsAdmin.nonce);
 			setButtonState($form, true);
 
-			$.post(nexiSettingsAdmin.ajaxUrl, data)
+			$.post(adminvoroSettingsAdmin.ajaxUrl, data)
 				.done(function (response) {
 					if (!response || !response.success) {
-						showNotices(response && response.data && response.data.notices ? response.data.notices : '<div class="notice notice-error nexisettings-notice"><p>' + nexiSettingsAdmin.saveFailed + '</p></div>');
+						showNotices(response && response.data && response.data.notices ? response.data.notices : '<div class="notice notice-error adminvoro-notice"><p>' + adminvoroSettingsAdmin.saveFailed + '</p></div>');
 						return;
 					}
 
@@ -142,7 +142,7 @@
 					syncOptions(response.data.options, response.data);
 				})
 				.fail(function (xhr) {
-					var notices = xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.notices ? xhr.responseJSON.data.notices : '<div class="notice notice-error nexisettings-notice"><p>' + nexiSettingsAdmin.ajaxError + '</p></div>';
+					var notices = xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.notices ? xhr.responseJSON.data.notices : '<div class="notice notice-error adminvoro-notice"><p>' + adminvoroSettingsAdmin.ajaxError + '</p></div>';
 					showNotices(notices);
 				})
 				.always(function () {
@@ -151,26 +151,26 @@
 				});
 		});
 
-		$('.nexisettings-redirects-form').on('submit', function (event) {
+		$('.adminvoro-redirects-form').on('submit', function (event) {
 			var $form = $(this);
 			var data;
 
 			event.preventDefault();
 
-			data = getSerializedFormData($form) + '&action=nexisettings_save_redirects&nonce=' + encodeURIComponent(nexiSettingsAdmin.nonce);
+			data = getSerializedFormData($form) + '&action=adminvoro_save_redirects&nonce=' + encodeURIComponent(adminvoroSettingsAdmin.nonce);
 			setButtonState($form, true);
 
-			$.post(nexiSettingsAdmin.ajaxUrl, data)
+			$.post(adminvoroSettingsAdmin.ajaxUrl, data)
 				.done(function (response) {
 					if (!response || !response.success) {
-						showNotices(response && response.data && response.data.notices ? response.data.notices : '<div class="notice notice-error nexisettings-notice"><p>' + nexiSettingsAdmin.saveFailed + '</p></div>');
+						showNotices(response && response.data && response.data.notices ? response.data.notices : '<div class="notice notice-error adminvoro-notice"><p>' + adminvoroSettingsAdmin.saveFailed + '</p></div>');
 						return;
 					}
 
 					showNotices(response.data.notices);
 				})
 				.fail(function (xhr) {
-					var notices = xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.notices ? xhr.responseJSON.data.notices : '<div class="notice notice-error nexisettings-notice"><p>' + nexiSettingsAdmin.ajaxError + '</p></div>';
+					var notices = xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.notices ? xhr.responseJSON.data.notices : '<div class="notice notice-error adminvoro-notice"><p>' + adminvoroSettingsAdmin.ajaxError + '</p></div>';
 					showNotices(notices);
 				})
 				.always(function () {
@@ -179,10 +179,10 @@
 				});
 		});
 
-		$(document).on('change', 'select[name="nexisettings_options[login_block_action]"]', toggleCustomBlockUrlField);
+		$(document).on('change', 'select[name="adminvoro_options[login_block_action]"]', toggleCustomBlockUrlField);
 		toggleCustomBlockUrlField();
 
-		$('.nexisettings-upload-logo').on('click', function (event) {
+		$('.adminvoro-upload-logo').on('click', function (event) {
 			event.preventDefault();
 
 			if (frame) {
@@ -191,9 +191,9 @@
 			}
 
 			frame = wp.media({
-				title: nexiSettingsAdmin.chooseLogo,
+				title: adminvoroSettingsAdmin.chooseLogo,
 				button: {
-					text: nexiSettingsAdmin.useLogo
+					text: adminvoroSettingsAdmin.useLogo
 				},
 				multiple: false
 			});
@@ -202,8 +202,8 @@
 				var attachment = frame.state().get('selection').first().toJSON();
 				var imageUrl = attachment.sizes && attachment.sizes.medium ? attachment.sizes.medium.url : attachment.url;
 
-				$('.nexisettings-logo-id').val(attachment.id);
-				$('.nexisettings-logo-preview')
+				$('.adminvoro-logo-id').val(attachment.id);
+				$('.adminvoro-logo-preview')
 					.removeClass('is-empty')
 					.empty()
 					.append($('<img />', {
@@ -215,29 +215,30 @@
 			frame.open();
 		});
 
-		$('.nexisettings-remove-logo').on('click', function (event) {
+		$('.adminvoro-remove-logo').on('click', function (event) {
 			event.preventDefault();
-			$('.nexisettings-logo-id').val('');
-			$('.nexisettings-logo-preview')
+			$('.adminvoro-logo-id').val('');
+			$('.adminvoro-logo-preview')
 				.addClass('is-empty')
-				.html('<span>' + nexiSettingsAdmin.noLogo + '</span>');
+				.html('<span>' + adminvoroSettingsAdmin.noLogo + '</span>');
 		});
 
-		$('.nexisettings-add-redirect').on('click', function (event) {
+		$('.adminvoro-add-redirect').on('click', function (event) {
 			event.preventDefault();
 
-			var template = $('#nexisettings-redirect-row-template').html();
+			var templateEl = document.getElementById('adminvoro-redirect-row-template');
+			var template = templateEl ? templateEl.innerHTML : '';
 			var index = Date.now();
 
-			$('.nexisettings-redirects-table tbody').append(template.replace(/__index__/g, index));
+			$('.adminvoro-redirects-table tbody').append(template.replace(/__index__/g, index));
 		});
 
-		$(document).on('click', '.nexisettings-delete-row', function (event) {
+		$(document).on('click', '.adminvoro-delete-row', function (event) {
 			event.preventDefault();
 
 			var $row = $(this).closest('tr');
-			$row.find('.nexisettings-delete-value').val('1');
-			$row.addClass('nexisettings-redirect-row-deleted');
+			$row.find('.adminvoro-delete-value').val('1');
+			$row.addClass('adminvoro-redirect-row-deleted');
 		});
 	});
 })(jQuery);

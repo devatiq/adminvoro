@@ -1,28 +1,39 @@
 <?php
 /**
- * NexiSettings uninstall cleanup.
+ * Adminvoro Toolkit uninstall cleanup.
  *
- * @package NexiSettings
+ * @package Adminvoro
  */
 
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
 }
 
-delete_option( 'nexisettings_options' );
-delete_option( 'nexisettings_redirects' );
+$adminvoro_options = array(
+	'adminvoro_options',
+	'adminvoro_redirects',
+	'nexisettings_options',
+	'nexisettings_redirects',
+);
+
+foreach ( $adminvoro_options as $adminvoro_option ) {
+	delete_option( $adminvoro_option );
+}
 
 if ( is_multisite() ) {
-	$nexisettings_site_ids = get_sites(
+	$adminvoro_site_ids = get_sites(
 		array(
 			'fields' => 'ids',
 		)
 	);
 
-	foreach ( $nexisettings_site_ids as $nexisettings_site_id ) {
-		switch_to_blog( $nexisettings_site_id );
-		delete_option( 'nexisettings_options' );
-		delete_option( 'nexisettings_redirects' );
+	foreach ( $adminvoro_site_ids as $adminvoro_site_id ) {
+		switch_to_blog( $adminvoro_site_id );
+
+		foreach ( $adminvoro_options as $adminvoro_option ) {
+			delete_option( $adminvoro_option );
+		}
+
 		restore_current_blog();
 	}
 }

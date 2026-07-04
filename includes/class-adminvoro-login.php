@@ -2,7 +2,7 @@
 /**
  * Custom login URL and login branding.
  *
- * @package NexiSettings
+ * @package Adminvoro
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Handles custom login routing, wp-login.php protection, and login screen branding.
  */
-class NexiSettings_Login {
+class Adminvoro_Login {
 	/**
 	 * Plugin options.
 	 *
@@ -24,19 +24,32 @@ class NexiSettings_Login {
 	 * Constructor.
 	 */
 	public function __construct() {
-		$this->options = NexiSettings::get_options();
+		$this->options = Adminvoro::get_options();
 
 		add_action( 'init', array( $this, 'add_rewrite_rule' ) );
+		add_filter( 'query_vars', array( $this, 'register_query_vars' ) );
 		add_action( 'init', array( $this, 'maybe_block_wp_admin' ), 1 );
 		add_action( 'parse_request', array( $this, 'maybe_load_custom_login' ), 0 );
 		add_action( 'login_init', array( $this, 'maybe_block_wp_login' ), 0 );
 		add_filter( 'login_url', array( $this, 'filter_login_url' ), 10, 3 );
 		add_filter( 'site_url', array( $this, 'filter_site_url' ), 10, 4 );
 
-		add_action( 'login_head', array( $this, 'output_login_branding_css' ), 99 );
+		add_action( 'login_enqueue_scripts', array( $this, 'enqueue_login_branding_assets' ), 99 );
 		add_filter( 'login_headerurl', array( $this, 'filter_login_logo_url' ) );
 		add_filter( 'login_headertext', array( $this, 'filter_login_logo_title' ) );
 		add_filter( 'login_message', array( $this, 'add_login_message' ) );
+	}
+
+	/**
+	 * Register rewrite query vars.
+	 *
+	 * @param array $vars Query vars.
+	 * @return array
+	 */
+	public function register_query_vars( $vars ) {
+		$vars[] = 'adminvoro_login';
+
+		return $vars;
 	}
 
 	/**
@@ -51,7 +64,7 @@ class NexiSettings_Login {
 
 		add_rewrite_rule(
 			'^' . preg_quote( $this->get_custom_login_slug(), '/' ) . '/?$',
-			'index.php?nexisettings_login=1',
+			'index.php?adminvoro_login=1',
 			'top'
 		);
 	}
@@ -65,7 +78,7 @@ class NexiSettings_Login {
 	 * @return void
 	 */
 	public function maybe_load_custom_login() {
-		if ( ! $this->is_custom_login_enabled() || NexiSettings::is_protected_request_context() ) {
+		if ( ! $this->is_custom_login_enabled() || Adminvoro::is_protected_request_context() ) {
 			return;
 		}
 
@@ -74,8 +87,8 @@ class NexiSettings_Login {
 			return;
 		}
 
-		if ( ! defined( 'NEXISETTINGS_DOING_CUSTOM_LOGIN' ) ) {
-			define( 'NEXISETTINGS_DOING_CUSTOM_LOGIN', true );
+		if ( ! defined( 'ADMINVORO_DOING_CUSTOM_LOGIN' ) ) {
+			define( 'ADMINVORO_DOING_CUSTOM_LOGIN', true );
 		}
 
 		require ABSPATH . 'wp-login.php';
@@ -88,7 +101,7 @@ class NexiSettings_Login {
 	 * @return void
 	 */
 	public function maybe_block_wp_login() {
-		if ( ! $this->is_custom_login_enabled() || defined( 'NEXISETTINGS_DOING_CUSTOM_LOGIN' ) ) {
+		if ( ! $this->is_custom_login_enabled() || defined( 'ADMINVORO_DOING_CUSTOM_LOGIN' ) ) {
 			return;
 		}
 
@@ -189,11 +202,28 @@ class NexiSettings_Login {
 	}
 
 	/**
-	 * Output custom login logo styles.
+	 * Enqueue dynamic login branding styles.
 	 *
 	 * @return void
 	 */
-	public function output_login_branding_css() {
+	public function enqueue_login_branding_assets() {
+		$css = $this->get_login_branding_css();
+
+		if ( '' === $css ) {
+			return;
+		}
+
+		wp_register_style( 'adminvoro-login', false, array(), ADMINVORO_VERSION );
+		wp_enqueue_style( 'adminvoro-login' );
+		wp_add_inline_style( 'adminvoro-login', $css );
+	}
+
+	/**
+	 * Build custom login branding CSS.
+	 *
+	 * @return string
+	 */
+	private function get_login_branding_css() {
 		$logo_url         = $this->get_login_logo_image_url();
 		$background_color = $this->get_hex_option( 'login_background_color' );
 		$text_color       = $this->get_hex_option( 'login_text_color' );
@@ -202,56 +232,51 @@ class NexiSettings_Login {
 		$has_message      = '' !== trim( (string) $this->options['login_logo_text'] );
 
 		if ( empty( $logo_url ) && empty( $background_color ) && empty( $text_color ) && empty( $link_color ) && ! $has_message && 18 === $text_size ) {
-			return;
+			return '';
 		}
 
-		?>
-		<style type="text/css">
-			<?php if ( ! empty( $background_color ) ) : ?>
-				body.login {
-					background-color: <?php echo esc_html( $background_color ); ?>;
-				}
-			<?php endif; ?>
+		$css = '';
 
-			<?php if ( ! empty( $logo_url ) ) : ?>
-				body.login div#login h1 a {
-					background-image: url('<?php echo esc_url( $logo_url ); ?>') !important;
-					background-size: contain !important;
-					background-position: center center !important;
-					background-repeat: no-repeat !important;
-					width: 100% !important;
-					max-width: 320px !important;
-					height: 100px !important;
-				}
-			<?php endif; ?>
+		if ( ! empty( $background_color ) ) {
+			$css .= 'body.login { background-color: ' . esc_html( $background_color ) . '; }';
+		}
 
-			body.login .nexisettings-login-message {
-				text-align: center;
-				font-size: <?php echo esc_html( (string) $text_size ); ?>px;
-				line-height: 1.45;
-			<?php if ( ! empty( $text_color ) ) : ?>
-				color: <?php echo esc_html( $text_color ); ?>;
-			<?php endif; ?>
-			}
+		if ( ! empty( $logo_url ) ) {
+			$css .= 'body.login div#login h1 a {';
+			$css .= 'background-image: url(' . esc_url( $logo_url ) . ') !important;';
+			$css .= 'background-size: contain !important;';
+			$css .= 'background-position: center center !important;';
+			$css .= 'background-repeat: no-repeat !important;';
+			$css .= 'width: 100% !important;';
+			$css .= 'max-width: 320px !important;';
+			$css .= 'height: 100px !important;';
+			$css .= '}';
+		}
 
-			<?php if ( ! empty( $text_color ) ) : ?>
-				body.login #nav,
-				body.login #backtoblog,
-				body.login .privacy-policy-page-link {
-					color: <?php echo esc_html( $text_color ); ?>;
-				}
-			<?php endif; ?>
+		$css .= 'body.login .adminvoro-login-message {';
+		$css .= 'text-align: center;';
+		$css .= 'font-size: ' . esc_html( (string) $text_size ) . 'px;';
+		$css .= 'line-height: 1.45;';
 
-			<?php if ( ! empty( $link_color ) ) : ?>
-				body.login .nexisettings-login-message a,
-				body.login #nav a,
-				body.login #backtoblog a,
-				body.login .privacy-policy-page-link a {
-					color: <?php echo esc_html( $link_color ); ?>;
-				}
-			<?php endif; ?>
-		</style>
-		<?php
+		if ( ! empty( $text_color ) ) {
+			$css .= 'color: ' . esc_html( $text_color ) . ';';
+		}
+
+		$css .= '}';
+
+		if ( ! empty( $text_color ) ) {
+			$css .= 'body.login #nav, body.login #backtoblog, body.login .privacy-policy-page-link {';
+			$css .= 'color: ' . esc_html( $text_color ) . ';';
+			$css .= '}';
+		}
+
+		if ( ! empty( $link_color ) ) {
+			$css .= 'body.login .adminvoro-login-message a, body.login #nav a, body.login #backtoblog a, body.login .privacy-policy-page-link a {';
+			$css .= 'color: ' . esc_html( $link_color ) . ';';
+			$css .= '}';
+		}
+
+		return $css;
 	}
 
 	/**
@@ -293,7 +318,7 @@ class NexiSettings_Login {
 			return $message;
 		}
 
-		$custom_message = '<div class="nexisettings-login-message">' . wp_kses_post( wpautop( $this->options['login_logo_text'] ) ) . '</div>';
+		$custom_message = '<div class="adminvoro-login-message">' . wp_kses_post( wpautop( $this->options['login_logo_text'] ) ) . '</div>';
 
 		return $custom_message . $message;
 	}
@@ -304,7 +329,7 @@ class NexiSettings_Login {
 	 * @return bool
 	 */
 	private function is_custom_login_enabled() {
-		if ( NexiSettings::is_custom_login_disabled() ) {
+		if ( Adminvoro::is_custom_login_disabled() ) {
 			return false;
 		}
 
@@ -350,8 +375,8 @@ class NexiSettings_Login {
 		status_header( 404 );
 		nocache_headers();
 		wp_die(
-			esc_html__( 'Not Found', 'nexisettings' ),
-			esc_html__( 'Not Found', 'nexisettings' ),
+			esc_html__( 'Not Found', 'adminvoro' ),
+			esc_html__( 'Not Found', 'adminvoro' ),
 			array( 'response' => 404 )
 		);
 	}

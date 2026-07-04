@@ -2,7 +2,7 @@
 /**
  * Performance toggles.
  *
- * @package NexiSettings
+ * @package Adminvoro
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Applies lightweight performance cleanup options.
  */
-class NexiSettings_Performance {
+class Adminvoro_Performance {
 	/**
 	 * Plugin options.
 	 *
@@ -24,7 +24,7 @@ class NexiSettings_Performance {
 	 * Constructor.
 	 */
 	public function __construct() {
-		$this->options = NexiSettings::get_options();
+		$this->options = Adminvoro::get_options();
 
 		if ( ! empty( $this->options['disable_emojis'] ) ) {
 			$this->disable_emojis();
@@ -50,7 +50,7 @@ class NexiSettings_Performance {
 		remove_filter( 'wp_mail', 'wp_staticize_emoji_for_email' );
 
 		add_filter( 'tiny_mce_plugins', array( $this, 'disable_emojis_tinymce' ) );
-		add_filter( 'wp_resource_hints', array( $this, 'nexisettings_remove_emoji_dns_prefetch' ), 10, 2 );
+		add_filter( 'wp_resource_hints', array( $this, 'adminvoro_remove_emoji_dns_prefetch' ), 10, 2 );
 	}
 
 	/**
@@ -74,7 +74,7 @@ class NexiSettings_Performance {
 	 * @param string $relation_type Relation type.
 	 * @return array
 	 */
-	public function nexisettings_remove_emoji_dns_prefetch( $urls, $relation_type ) {
+	public function adminvoro_remove_emoji_dns_prefetch( $urls, $relation_type ) {
 		if ( 'dns-prefetch' !== $relation_type ) {
 			return $urls;
 		}

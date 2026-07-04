@@ -2,7 +2,7 @@
 /**
  * Admin settings UI.
  *
- * @package NexiSettings
+ * @package Adminvoro
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -10,15 +10,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Builds and saves NexiSettings admin screens.
+ * Builds and saves Adminvoro admin screens.
  */
-class NexiSettings_Admin {
+class Adminvoro_Admin {
 	/**
 	 * Admin page slug.
 	 *
 	 * @var string
 	 */
-	const MENU_SLUG = 'nexisettings';
+	const MENU_SLUG = 'adminvoro';
 
 	/**
 	 * Constructor.
@@ -27,10 +27,10 @@ class NexiSettings_Admin {
 		add_action( 'admin_menu', array( $this, 'add_menu_page' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
-		add_action( 'admin_post_nexisettings_save_redirects', array( $this, 'save_redirects' ) );
-		add_action( 'wp_ajax_nexisettings_save_options', array( $this, 'ajax_save_options' ) );
-		add_action( 'wp_ajax_nexisettings_save_redirects', array( $this, 'ajax_save_redirects' ) );
-		add_filter( 'plugin_action_links_' . NEXISETTINGS_BASENAME, array( $this, 'add_settings_link' ) );
+		add_action( 'admin_post_adminvoro_save_redirects', array( $this, 'save_redirects' ) );
+		add_action( 'wp_ajax_adminvoro_save_options', array( $this, 'ajax_save_options' ) );
+		add_action( 'wp_ajax_adminvoro_save_redirects', array( $this, 'ajax_save_redirects' ) );
+		add_filter( 'plugin_action_links_' . ADMINVORO_BASENAME, array( $this, 'add_settings_link' ) );
 	}
 
 	/**
@@ -40,8 +40,8 @@ class NexiSettings_Admin {
 	 */
 	public function add_menu_page() {
 		add_menu_page(
-			esc_html__( 'NexiSettings', 'nexisettings' ),
-			esc_html__( 'NexiSettings', 'nexisettings' ),
+			esc_html__( 'Adminvoro Toolkit', 'adminvoro' ),
+			esc_html__( 'Adminvoro Toolkit', 'adminvoro' ),
 			'manage_options',
 			self::MENU_SLUG,
 			array( $this, 'render_page' ),
@@ -57,12 +57,12 @@ class NexiSettings_Admin {
 	 */
 	public function register_settings() {
 		register_setting(
-			'nexisettings_options_group',
-			NEXISETTINGS_OPTION,
+			'adminvoro_options_group',
+			ADMINVORO_OPTION,
 			array(
 				'type'              => 'array',
 				'sanitize_callback' => array( $this, 'sanitize_options' ),
-				'default'           => NexiSettings::get_default_options(),
+				'default'           => Adminvoro::get_default_options(),
 			)
 		);
 	}
@@ -80,30 +80,30 @@ class NexiSettings_Admin {
 
 		wp_enqueue_media();
 		wp_enqueue_style(
-			'nexisettings-admin',
-			NEXISETTINGS_URL . 'assets/css/admin.css',
+			'adminvoro-admin',
+			ADMINVORO_URL . 'assets/css/admin.css',
 			array(),
-			NEXISETTINGS_VERSION
+			ADMINVORO_VERSION
 		);
 		wp_enqueue_script(
-			'nexisettings-admin',
-			NEXISETTINGS_URL . 'assets/js/admin.js',
+			'adminvoro-admin',
+			ADMINVORO_URL . 'assets/js/admin.js',
 			array( 'jquery' ),
-			NEXISETTINGS_VERSION,
+			ADMINVORO_VERSION,
 			true
 		);
 		wp_localize_script(
-			'nexisettings-admin',
-			'nexiSettingsAdmin',
+			'adminvoro-admin',
+			'adminvoroSettingsAdmin',
 			array(
 				'ajaxUrl'     => admin_url( 'admin-ajax.php' ),
-				'nonce'       => wp_create_nonce( 'nexisettings_ajax_save' ),
-				'chooseLogo'  => esc_html__( 'Choose login logo', 'nexisettings' ),
-				'useLogo'     => esc_html__( 'Use this logo', 'nexisettings' ),
-				'noLogo'      => esc_html__( 'No logo selected', 'nexisettings' ),
-				'saving'      => esc_html__( 'Saving...', 'nexisettings' ),
-				'saveFailed'  => esc_html__( 'Settings could not be saved. Please refresh and try again.', 'nexisettings' ),
-				'ajaxError'   => esc_html__( 'A network error prevented saving. Please try again.', 'nexisettings' ),
+				'nonce'       => wp_create_nonce( 'adminvoro_ajax_save' ),
+				'chooseLogo'  => esc_html__( 'Choose login logo', 'adminvoro' ),
+				'useLogo'     => esc_html__( 'Use this logo', 'adminvoro' ),
+				'noLogo'      => esc_html__( 'No logo selected', 'adminvoro' ),
+				'saving'      => esc_html__( 'Saving...', 'adminvoro' ),
+				'saveFailed'  => esc_html__( 'Settings could not be saved. Please refresh and try again.', 'adminvoro' ),
+				'ajaxError'   => esc_html__( 'A network error prevented saving. Please try again.', 'adminvoro' ),
 			)
 		);
 	}
@@ -118,7 +118,7 @@ class NexiSettings_Admin {
 		$settings_link = sprintf(
 			'<a href="%1$s">%2$s</a>',
 			esc_url( admin_url( 'admin.php?page=' . self::MENU_SLUG ) ),
-			esc_html__( 'Settings', 'nexisettings' )
+			esc_html__( 'Settings', 'adminvoro' )
 		);
 
 		array_unshift( $links, $settings_link );
@@ -134,7 +134,7 @@ class NexiSettings_Admin {
 	 */
 	public function sanitize_options( $input ) {
 		$input    = is_array( $input ) ? wp_unslash( $input ) : array();
-		$existing = NexiSettings::get_options();
+		$existing = Adminvoro::get_options();
 		$output   = $existing;
 		$tab      = isset( $input['active_tab'] ) ? sanitize_key( $input['active_tab'] ) : '';
 
@@ -160,7 +160,7 @@ class NexiSettings_Admin {
 				break;
 		}
 
-		return wp_parse_args( $output, NexiSettings::get_default_options() );
+		return wp_parse_args( $output, Adminvoro::get_default_options() );
 	}
 
 	/**
@@ -172,21 +172,21 @@ class NexiSettings_Admin {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error(
 				array(
-					'notices' => $this->render_notice_html( esc_html__( 'You do not have permission to manage NexiSettings.', 'nexisettings' ), 'error' ),
+					'notices' => $this->render_notice_html( esc_html__( 'You do not have permission to manage Adminvoro Toolkit.', 'adminvoro' ), 'error' ),
 				),
 				403
 			);
 		}
 
-		check_ajax_referer( 'nexisettings_ajax_save', 'nonce' );
+		check_ajax_referer( 'adminvoro_ajax_save', 'nonce' );
 
-		$input = isset( $_POST[ NEXISETTINGS_OPTION ] ) && is_array( $_POST[ NEXISETTINGS_OPTION ] ) ? wp_unslash( $_POST[ NEXISETTINGS_OPTION ] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$input = isset( $_POST[ ADMINVORO_OPTION ] ) && is_array( $_POST[ ADMINVORO_OPTION ] ) ? wp_unslash( $_POST[ ADMINVORO_OPTION ] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$tab   = isset( $input['active_tab'] ) ? sanitize_key( wp_unslash( $input['active_tab'] ) ) : '';
 
 		if ( '' === $tab ) {
 			wp_send_json_error(
 				array(
-					'notices' => $this->render_notice_html( esc_html__( 'Settings could not be saved because the active tab was missing.', 'nexisettings' ), 'error' ),
+					'notices' => $this->render_notice_html( esc_html__( 'Settings could not be saved because the active tab was missing.', 'adminvoro' ), 'error' ),
 				),
 				400
 			);
@@ -196,7 +196,7 @@ class NexiSettings_Admin {
 		$options = $this->sanitize_options( $input );
 		$this->update_options_without_resanitizing( $options );
 
-		$errors     = get_settings_errors( NEXISETTINGS_OPTION );
+		$errors     = get_settings_errors( ADMINVORO_OPTION );
 		$has_errors = $this->settings_errors_have_errors( $errors );
 		$notices    = $this->render_settings_errors_html( $errors );
 
@@ -225,9 +225,9 @@ class NexiSettings_Admin {
 	 * @return void
 	 */
 	private function update_options_without_resanitizing( $options ) {
-		remove_filter( 'sanitize_option_' . NEXISETTINGS_OPTION, array( $this, 'sanitize_options' ), 10 );
-		update_option( NEXISETTINGS_OPTION, $options );
-		add_filter( 'sanitize_option_' . NEXISETTINGS_OPTION, array( $this, 'sanitize_options' ), 10, 1 );
+		remove_filter( 'sanitize_option_' . ADMINVORO_OPTION, array( $this, 'sanitize_options' ), 10 );
+		update_option( ADMINVORO_OPTION, $options );
+		add_filter( 'sanitize_option_' . ADMINVORO_OPTION, array( $this, 'sanitize_options' ), 10, 1 );
 	}
 
 	/**
@@ -237,10 +237,10 @@ class NexiSettings_Admin {
 	 */
 	public function save_redirects() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to manage NexiSettings.', 'nexisettings' ) );
+			wp_die( esc_html__( 'You do not have permission to manage Adminvoro Toolkit.', 'adminvoro' ) );
 		}
 
-		check_admin_referer( 'nexisettings_save_redirects' );
+		check_admin_referer( 'adminvoro_save_redirects' );
 
 		$result = $this->process_redirect_save();
 
@@ -259,13 +259,13 @@ class NexiSettings_Admin {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error(
 				array(
-					'notices' => $this->render_notice_html( esc_html__( 'You do not have permission to manage NexiSettings.', 'nexisettings' ), 'error' ),
+					'notices' => $this->render_notice_html( esc_html__( 'You do not have permission to manage Adminvoro Toolkit.', 'adminvoro' ), 'error' ),
 				),
 				403
 			);
 		}
 
-		check_ajax_referer( 'nexisettings_ajax_save', 'nonce' );
+		check_ajax_referer( 'adminvoro_ajax_save', 'nonce' );
 
 		$result = $this->process_redirect_save();
 
@@ -282,18 +282,18 @@ class NexiSettings_Admin {
 	 * @return array
 	 */
 	private function process_redirect_save() {
-		$rows      = isset( $_POST['nexisettings_redirects'] ) && is_array( $_POST['nexisettings_redirects'] ) ? wp_unslash( $_POST['nexisettings_redirects'] ) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$redirects = NexiSettings_Redirects::sanitize_redirect_rows( $rows );
+		$rows      = isset( $_POST['adminvoro_redirects'] ) && is_array( $_POST['adminvoro_redirects'] ) ? wp_unslash( $_POST['adminvoro_redirects'] ) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$redirects = Adminvoro_Redirects::sanitize_redirect_rows( $rows );
 		$submitted = $this->count_submitted_redirect_rows( $rows );
 		$skipped   = max( 0, $submitted - count( $redirects ) );
 
-		update_option( NEXISETTINGS_REDIRECTS_OPTION, $redirects );
+		update_option( ADMINVORO_REDIRECTS_OPTION, $redirects );
 
 		if ( $skipped > 0 ) {
 			return array(
 				'message' => sprintf(
 					/* translators: 1: Number of redirects saved. 2: Number of redirects skipped. */
-					__( '%1$d redirect(s) saved. %2$d invalid row(s) skipped.', 'nexisettings' ),
+					__( '%1$d redirect(s) saved. %2$d invalid row(s) skipped.', 'adminvoro' ),
 					count( $redirects ),
 					$skipped
 				),
@@ -304,7 +304,7 @@ class NexiSettings_Admin {
 		return array(
 			'message' => sprintf(
 				/* translators: %d: Number of redirects saved. */
-				_n( '%d redirect saved.', '%d redirects saved.', count( $redirects ), 'nexisettings' ),
+				_n( '%d redirect saved.', '%d redirects saved.', count( $redirects ), 'adminvoro' ),
 				count( $redirects )
 			),
 			'type'    => 'success',
@@ -321,35 +321,35 @@ class NexiSettings_Admin {
 			return;
 		}
 
-		$options    = NexiSettings::get_options();
-		$redirects  = NexiSettings_Redirects::get_redirects();
+		$options    = Adminvoro::get_options();
+		$redirects  = Adminvoro_Redirects::get_redirects();
 		$active_tab = $this->get_active_tab();
 
 		?>
-		<div class="wrap nexisettings-wrap">
-			<div class="nexisettings-hero">
+		<div class="wrap adminvoro-wrap">
+			<div class="adminvoro-hero">
 				<div>
-					<p class="nexisettings-eyebrow"><?php esc_html_e( 'DASHBOARD TOOLKIT', 'nexisettings' ); ?></p>
-					<h1><?php esc_html_e( 'NexiSettings', 'nexisettings' ); ?></h1>
-					<p><?php esc_html_e( 'Secure and customize WordPress login, redirects, performance, and admin branding from one clean dashboard.', 'nexisettings' ); ?></p>
+					<p class="adminvoro-eyebrow"><?php esc_html_e( 'DASHBOARD TOOLKIT', 'adminvoro' ); ?></p>
+					<h1><?php esc_html_e( 'Adminvoro Toolkit', 'adminvoro' ); ?></h1>
+					<p><?php esc_html_e( 'Manage custom login URLs, login branding, redirects, and essential admin/site controls from one lightweight toolkit.', 'adminvoro' ); ?></p>
 				</div>
-				<div class="nexisettings-version">
+				<div class="adminvoro-version">
 					<?php
 					printf(
 						/* translators: %s: Plugin version. */
-						esc_html__( 'Version %s', 'nexisettings' ),
-						esc_html( NEXISETTINGS_VERSION )
+						esc_html__( 'Version %s', 'adminvoro' ),
+						esc_html( ADMINVORO_VERSION )
 					);
 					?>
 				</div>
 			</div>
 
-			<div class="nexisettings-notices" aria-live="polite">
-				<?php settings_errors( NEXISETTINGS_OPTION ); ?>
+			<div class="adminvoro-notices" aria-live="polite">
+				<?php settings_errors( ADMINVORO_OPTION ); ?>
 				<?php $this->display_admin_notice(); ?>
 			</div>
 
-			<nav class="nexisettings-tabs" aria-label="<?php esc_attr_e( 'NexiSettings sections', 'nexisettings' ); ?>">
+			<nav class="adminvoro-tabs" aria-label="<?php esc_attr_e( 'Adminvoro Toolkit sections', 'adminvoro' ); ?>">
 				<?php foreach ( $this->get_tabs() as $tab_id => $label ) : ?>
 					<a class="<?php echo esc_attr( $active_tab === $tab_id ? 'is-active' : '' ); ?>" href="<?php echo esc_url( add_query_arg( array( 'page' => self::MENU_SLUG, 'tab' => $tab_id ), admin_url( 'admin.php' ) ) ); ?>">
 						<?php echo esc_html( $label ); ?>
@@ -357,7 +357,7 @@ class NexiSettings_Admin {
 				<?php endforeach; ?>
 			</nav>
 
-			<div class="nexisettings-panel">
+			<div class="adminvoro-panel">
 				<?php
 				switch ( $active_tab ) {
 					case 'login-branding':
@@ -404,7 +404,7 @@ class NexiSettings_Admin {
 
 		if ( 'custom_url' === $output['login_block_action'] && '' === $output['login_block_custom_url'] ) {
 			$output['login_block_action'] = '404';
-			add_settings_error( NEXISETTINGS_OPTION, 'nexisettings-invalid-block-url', esc_html__( 'Enter a valid same-site custom page URL before selecting the custom page redirect option.', 'nexisettings' ), 'error' );
+			add_settings_error( ADMINVORO_OPTION, 'adminvoro-invalid-block-url', esc_html__( 'Enter a valid same-site custom page URL before selecting the custom page redirect option.', 'adminvoro' ), 'error' );
 		}
 
 		$raw_slug = isset( $input['custom_login_slug'] ) ? trim( sanitize_text_field( $input['custom_login_slug'] ) ) : '';
@@ -413,18 +413,18 @@ class NexiSettings_Admin {
 
 		if ( '' !== $raw_slug && preg_match( '#[\\/\\\\]#', $raw_slug ) ) {
 			$slug = '';
-			add_settings_error( NEXISETTINGS_OPTION, 'nexisettings-invalid-login-slug', esc_html__( 'The custom login slug cannot contain slashes.', 'nexisettings' ), 'error' );
+			add_settings_error( ADMINVORO_OPTION, 'adminvoro-invalid-login-slug', esc_html__( 'The custom login slug cannot contain slashes.', 'adminvoro' ), 'error' );
 		}
 
-		if ( '' !== $slug && in_array( $slug, NexiSettings::get_reserved_login_slugs(), true ) ) {
+		if ( '' !== $slug && in_array( $slug, Adminvoro::get_reserved_login_slugs(), true ) ) {
 			$slug = '';
-			add_settings_error( NEXISETTINGS_OPTION, 'nexisettings-reserved-login-slug', esc_html__( 'That custom login slug is reserved by WordPress. Choose a different slug.', 'nexisettings' ), 'error' );
+			add_settings_error( ADMINVORO_OPTION, 'adminvoro-reserved-login-slug', esc_html__( 'That custom login slug is reserved by WordPress. Choose a different slug.', 'adminvoro' ), 'error' );
 		}
 
 		if ( ! empty( $output['enable_custom_login'] ) && '' === $slug ) {
 			$output['enable_custom_login'] = 0;
 			$output['custom_login_slug']  = $old_slug;
-			add_settings_error( NEXISETTINGS_OPTION, 'nexisettings-login-disabled', esc_html__( 'Custom login protection was not enabled because the login slug is invalid or empty.', 'nexisettings' ), 'error' );
+			add_settings_error( ADMINVORO_OPTION, 'adminvoro-login-disabled', esc_html__( 'Custom login protection was not enabled because the login slug is invalid or empty.', 'adminvoro' ), 'error' );
 		} elseif ( '' !== $slug ) {
 			$output['custom_login_slug'] = $slug;
 		} else {
@@ -645,7 +645,7 @@ class NexiSettings_Admin {
 
 		ob_start();
 		?>
-		<div class="notice notice-<?php echo esc_attr( $type ); ?> nexisettings-notice is-dismissible">
+		<div class="notice notice-<?php echo esc_attr( $type ); ?> adminvoro-notice is-dismissible">
 			<p><?php echo wp_kses_post( $message ); ?></p>
 		</div>
 		<?php
@@ -663,20 +663,20 @@ class NexiSettings_Admin {
 		if ( 'login-security' === $tab && ! empty( $options['enable_custom_login'] ) && ! empty( $options['custom_login_slug'] ) ) {
 			return sprintf(
 				/* translators: %s: Current custom login URL. */
-				__( 'Login security saved. Current login URL: %s', 'nexisettings' ),
+				__( 'Login security saved. Current login URL: %s', 'adminvoro' ),
 				esc_url( $this->get_current_login_url( $options ) )
 			);
 		}
 
 		$messages = array(
-			'login-security' => __( 'Login security settings saved.', 'nexisettings' ),
-			'login-branding' => __( 'Login branding settings saved.', 'nexisettings' ),
-			'security'       => __( 'Security settings saved.', 'nexisettings' ),
-			'performance'    => __( 'Performance settings saved.', 'nexisettings' ),
-			'admin-branding' => __( 'Admin branding settings saved.', 'nexisettings' ),
+			'login-security' => __( 'Login security settings saved.', 'adminvoro' ),
+			'login-branding' => __( 'Login branding settings saved.', 'adminvoro' ),
+			'security'       => __( 'Security settings saved.', 'adminvoro' ),
+			'performance'    => __( 'Performance settings saved.', 'adminvoro' ),
+			'admin-branding' => __( 'Admin branding settings saved.', 'adminvoro' ),
 		);
 
-		return isset( $messages[ $tab ] ) ? $messages[ $tab ] : __( 'Settings saved.', 'nexisettings' );
+		return isset( $messages[ $tab ] ) ? $messages[ $tab ] : __( 'Settings saved.', 'adminvoro' );
 	}
 
 	/**
@@ -688,19 +688,19 @@ class NexiSettings_Admin {
 	private function get_current_login_notice_html( $options ) {
 		ob_start();
 
-		if ( NexiSettings::is_custom_login_disabled() ) :
+		if ( Adminvoro::is_custom_login_disabled() ) :
 			?>
-			<div class="nexisettings-alert nexisettings-alert-warning">
-				<?php esc_html_e( 'Custom login protection is disabled because NEXISETTINGS_DISABLE_CUSTOM_LOGIN is defined as true.', 'nexisettings' ); ?>
+			<div class="adminvoro-alert adminvoro-alert-warning">
+				<?php esc_html_e( 'Custom login protection is disabled because ADMINVORO_DISABLE_CUSTOM_LOGIN is defined as true.', 'adminvoro' ); ?>
 			</div>
 			<?php
 		elseif ( ! empty( $options['enable_custom_login'] ) && '' !== $options['custom_login_slug'] ) :
 			$current_login_url = $this->get_current_login_url( $options );
 			?>
-			<div class="nexisettings-alert nexisettings-alert-success">
-				<strong><?php esc_html_e( 'Current login URL:', 'nexisettings' ); ?></strong>
+			<div class="adminvoro-alert adminvoro-alert-success">
+				<strong><?php esc_html_e( 'Current login URL:', 'adminvoro' ); ?></strong>
 				<a href="<?php echo esc_url( $current_login_url ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html( $current_login_url ); ?></a>
-				<span><?php esc_html_e( 'Bookmark this URL before logging out.', 'nexisettings' ); ?></span>
+				<span><?php esc_html_e( 'Bookmark this URL before logging out.', 'adminvoro' ); ?></span>
 			</div>
 			<?php
 		endif;
@@ -736,59 +736,59 @@ class NexiSettings_Admin {
 	 */
 	private function render_login_security_tab( $options ) {
 		?>
-		<form method="post" action="options.php" class="nexisettings-form nexisettings-options-form">
-			<?php settings_fields( 'nexisettings_options_group' ); ?>
-			<input type="hidden" name="<?php echo esc_attr( NEXISETTINGS_OPTION ); ?>[active_tab]" value="login-security" />
+		<form method="post" action="options.php" class="adminvoro-form adminvoro-options-form">
+			<?php settings_fields( 'adminvoro_options_group' ); ?>
+			<input type="hidden" name="<?php echo esc_attr( ADMINVORO_OPTION ); ?>[active_tab]" value="login-security" />
 
-			<div class="nexisettings-card">
-				<div class="nexisettings-card-header">
+			<div class="adminvoro-card">
+				<div class="adminvoro-card-header">
 					<div>
-						<h2><?php esc_html_e( 'Custom Login URL', 'nexisettings' ); ?></h2>
-						<p><?php esc_html_e( 'Move public login access away from wp-login.php while preserving a safe admin fallback.', 'nexisettings' ); ?></p>
+						<h2><?php esc_html_e( 'Custom Login URL', 'adminvoro' ); ?></h2>
+						<p><?php esc_html_e( 'Move public login access away from wp-login.php while preserving a safe admin fallback.', 'adminvoro' ); ?></p>
 					</div>
 				</div>
 
-				<div class="nexisettings-current-login-wrap">
+				<div class="adminvoro-current-login-wrap">
 					<?php echo wp_kses_post( $this->get_current_login_notice_html( $options ) ); ?>
 				</div>
 
 				<?php
 				$this->render_toggle(
-					NEXISETTINGS_OPTION . '[enable_custom_login]',
+					ADMINVORO_OPTION . '[enable_custom_login]',
 					'enable_custom_login',
 					! empty( $options['enable_custom_login'] ),
-					esc_html__( 'Enable custom login URL', 'nexisettings' ),
-					esc_html__( 'When enabled, non-logged-in direct visits to wp-login.php are blocked according to the action below.', 'nexisettings' )
+					esc_html__( 'Enable custom login URL', 'adminvoro' ),
+					esc_html__( 'When enabled, non-logged-in direct visits to wp-login.php are blocked according to the action below.', 'adminvoro' )
 				);
 				?>
 
-				<label class="nexisettings-field">
-					<span><?php esc_html_e( 'Custom login slug', 'nexisettings' ); ?></span>
-					<div class="nexisettings-prefix-input">
+				<label class="adminvoro-field">
+					<span><?php esc_html_e( 'Custom login slug', 'adminvoro' ); ?></span>
+					<div class="adminvoro-prefix-input">
 						<span><?php echo esc_html( trailingslashit( home_url() ) ); ?></span>
-						<input type="text" name="<?php echo esc_attr( NEXISETTINGS_OPTION ); ?>[custom_login_slug]" value="<?php echo esc_attr( $options['custom_login_slug'] ); ?>" placeholder="<?php esc_attr_e( 'my-login', 'nexisettings' ); ?>" />
+						<input type="text" name="<?php echo esc_attr( ADMINVORO_OPTION ); ?>[custom_login_slug]" value="<?php echo esc_attr( $options['custom_login_slug'] ); ?>" placeholder="<?php esc_attr_e( 'my-login', 'adminvoro' ); ?>" />
 					</div>
-					<small><?php esc_html_e( 'Use letters, numbers, and hyphens only. Reserved slugs like wp-admin, wp-content, login, and admin are blocked.', 'nexisettings' ); ?></small>
+					<small><?php esc_html_e( 'Use letters, numbers, and hyphens only. Reserved slugs like wp-admin, wp-content, login, and admin are blocked.', 'adminvoro' ); ?></small>
 				</label>
 
-				<label class="nexisettings-field">
-					<span><?php esc_html_e( 'When wp-login.php is visited', 'nexisettings' ); ?></span>
-					<select name="<?php echo esc_attr( NEXISETTINGS_OPTION ); ?>[login_block_action]">
-						<option value="404" <?php selected( $options['login_block_action'], '404' ); ?>><?php esc_html_e( 'Show 404', 'nexisettings' ); ?></option>
-						<option value="home" <?php selected( $options['login_block_action'], 'home' ); ?>><?php esc_html_e( 'Redirect to homepage', 'nexisettings' ); ?></option>
-						<option value="custom_url" <?php selected( $options['login_block_action'], 'custom_url' ); ?>><?php esc_html_e( 'Redirect to custom page URL', 'nexisettings' ); ?></option>
+				<label class="adminvoro-field">
+					<span><?php esc_html_e( 'When wp-login.php is visited', 'adminvoro' ); ?></span>
+					<select name="<?php echo esc_attr( ADMINVORO_OPTION ); ?>[login_block_action]">
+						<option value="404" <?php selected( $options['login_block_action'], '404' ); ?>><?php esc_html_e( 'Show 404', 'adminvoro' ); ?></option>
+						<option value="home" <?php selected( $options['login_block_action'], 'home' ); ?>><?php esc_html_e( 'Redirect to homepage', 'adminvoro' ); ?></option>
+						<option value="custom_url" <?php selected( $options['login_block_action'], 'custom_url' ); ?>><?php esc_html_e( 'Redirect to custom page URL', 'adminvoro' ); ?></option>
 					</select>
-					<small><?php esc_html_e( 'Logged-in users are never blocked from wp-login.php.', 'nexisettings' ); ?></small>
+					<small><?php esc_html_e( 'Logged-in users are never blocked from wp-login.php.', 'adminvoro' ); ?></small>
 				</label>
 
-				<label class="nexisettings-field nexisettings-custom-block-url-field <?php echo esc_attr( 'custom_url' === $options['login_block_action'] ? '' : 'is-hidden' ); ?>">
-					<span><?php esc_html_e( 'Custom page URL', 'nexisettings' ); ?></span>
-					<input type="text" name="<?php echo esc_attr( NEXISETTINGS_OPTION ); ?>[login_block_custom_url]" value="<?php echo esc_attr( $options['login_block_custom_url'] ); ?>" placeholder="<?php echo esc_attr( home_url( '/login-help/' ) ); ?>" />
-					<small><?php esc_html_e( 'Use a same-site page URL such as /login-help/ or a full URL on this domain.', 'nexisettings' ); ?></small>
+				<label class="adminvoro-field adminvoro-custom-block-url-field <?php echo esc_attr( 'custom_url' === $options['login_block_action'] ? '' : 'is-hidden' ); ?>">
+					<span><?php esc_html_e( 'Custom page URL', 'adminvoro' ); ?></span>
+					<input type="text" name="<?php echo esc_attr( ADMINVORO_OPTION ); ?>[login_block_custom_url]" value="<?php echo esc_attr( $options['login_block_custom_url'] ); ?>" placeholder="<?php echo esc_attr( home_url( '/login-help/' ) ); ?>" />
+					<small><?php esc_html_e( 'Use a same-site page URL such as /login-help/ or a full URL on this domain.', 'adminvoro' ); ?></small>
 				</label>
 			</div>
 
-			<?php submit_button( esc_html__( 'Save Login Security', 'nexisettings' ) ); ?>
+			<?php submit_button( esc_html__( 'Save Login Security', 'adminvoro' ) ); ?>
 		</form>
 		<?php
 	}
@@ -808,74 +808,74 @@ class NexiSettings_Admin {
 			}
 		}
 		?>
-		<form method="post" action="options.php" class="nexisettings-form nexisettings-options-form">
-			<?php settings_fields( 'nexisettings_options_group' ); ?>
-			<input type="hidden" name="<?php echo esc_attr( NEXISETTINGS_OPTION ); ?>[active_tab]" value="login-branding" />
+		<form method="post" action="options.php" class="adminvoro-form adminvoro-options-form">
+			<?php settings_fields( 'adminvoro_options_group' ); ?>
+			<input type="hidden" name="<?php echo esc_attr( ADMINVORO_OPTION ); ?>[active_tab]" value="login-branding" />
 
-			<div class="nexisettings-card">
-				<div class="nexisettings-card-header">
+			<div class="adminvoro-card">
+				<div class="adminvoro-card-header">
 					<div>
-						<h2><?php esc_html_e( 'Login Page Branding', 'nexisettings' ); ?></h2>
-						<p><?php esc_html_e( 'Customize the WordPress login screen with your brand assets and helper text.', 'nexisettings' ); ?></p>
+						<h2><?php esc_html_e( 'Login Page Branding', 'adminvoro' ); ?></h2>
+						<p><?php esc_html_e( 'Customize the WordPress login screen with your brand assets and helper text.', 'adminvoro' ); ?></p>
 					</div>
 				</div>
 
-				<div class="nexisettings-logo-control">
-					<input type="hidden" class="nexisettings-logo-id" name="<?php echo esc_attr( NEXISETTINGS_OPTION ); ?>[login_logo_id]" value="<?php echo esc_attr( absint( $options['login_logo_id'] ) ); ?>" />
-					<div class="nexisettings-logo-preview <?php echo esc_attr( empty( $logo_url ) ? 'is-empty' : '' ); ?>">
+				<div class="adminvoro-logo-control">
+					<input type="hidden" class="adminvoro-logo-id" name="<?php echo esc_attr( ADMINVORO_OPTION ); ?>[login_logo_id]" value="<?php echo esc_attr( absint( $options['login_logo_id'] ) ); ?>" />
+					<div class="adminvoro-logo-preview <?php echo esc_attr( empty( $logo_url ) ? 'is-empty' : '' ); ?>">
 						<?php if ( ! empty( $logo_url ) ) : ?>
-							<img src="<?php echo esc_url( $logo_url ); ?>" alt="<?php esc_attr_e( 'Selected login logo', 'nexisettings' ); ?>" />
+							<img src="<?php echo esc_url( $logo_url ); ?>" alt="<?php esc_attr_e( 'Selected login logo', 'adminvoro' ); ?>" />
 						<?php else : ?>
-							<span><?php esc_html_e( 'No logo selected', 'nexisettings' ); ?></span>
+							<span><?php esc_html_e( 'No logo selected', 'adminvoro' ); ?></span>
 						<?php endif; ?>
 					</div>
-					<div class="nexisettings-logo-actions">
-						<button type="button" class="button nexisettings-upload-logo"><?php esc_html_e( 'Choose Logo', 'nexisettings' ); ?></button>
-						<button type="button" class="button nexisettings-remove-logo"><?php esc_html_e( 'Remove Logo', 'nexisettings' ); ?></button>
+					<div class="adminvoro-logo-actions">
+						<button type="button" class="button adminvoro-upload-logo"><?php esc_html_e( 'Choose Logo', 'adminvoro' ); ?></button>
+						<button type="button" class="button adminvoro-remove-logo"><?php esc_html_e( 'Remove Logo', 'adminvoro' ); ?></button>
 					</div>
 				</div>
 
-				<label class="nexisettings-field">
-					<span><?php esc_html_e( 'Logo URL', 'nexisettings' ); ?></span>
-					<input type="url" name="<?php echo esc_attr( NEXISETTINGS_OPTION ); ?>[login_logo_url]" value="<?php echo esc_attr( $options['login_logo_url'] ); ?>" placeholder="<?php echo esc_attr( home_url( '/' ) ); ?>" />
-					<small><?php esc_html_e( 'Where users go when they click the login logo. Leave blank for WordPress default.', 'nexisettings' ); ?></small>
+				<label class="adminvoro-field">
+					<span><?php esc_html_e( 'Logo URL', 'adminvoro' ); ?></span>
+					<input type="url" name="<?php echo esc_attr( ADMINVORO_OPTION ); ?>[login_logo_url]" value="<?php echo esc_attr( $options['login_logo_url'] ); ?>" placeholder="<?php echo esc_attr( home_url( '/' ) ); ?>" />
+					<small><?php esc_html_e( 'Where users go when they click the login logo. Leave blank for WordPress default.', 'adminvoro' ); ?></small>
 				</label>
 
-				<label class="nexisettings-field">
-					<span><?php esc_html_e( 'Text below logo', 'nexisettings' ); ?></span>
-					<textarea name="<?php echo esc_attr( NEXISETTINGS_OPTION ); ?>[login_logo_text]" rows="4"><?php echo esc_textarea( $options['login_logo_text'] ); ?></textarea>
-					<small><?php esc_html_e( 'Basic formatting is allowed. Unsafe HTML is removed when saved.', 'nexisettings' ); ?></small>
+				<label class="adminvoro-field">
+					<span><?php esc_html_e( 'Text below logo', 'adminvoro' ); ?></span>
+					<textarea name="<?php echo esc_attr( ADMINVORO_OPTION ); ?>[login_logo_text]" rows="4"><?php echo esc_textarea( $options['login_logo_text'] ); ?></textarea>
+					<small><?php esc_html_e( 'Basic formatting is allowed. Unsafe HTML is removed when saved.', 'adminvoro' ); ?></small>
 				</label>
 
-				<div class="nexisettings-branding-grid">
-					<label class="nexisettings-field">
-						<span><?php esc_html_e( 'Login background color', 'nexisettings' ); ?></span>
-						<input type="color" name="<?php echo esc_attr( NEXISETTINGS_OPTION ); ?>[login_background_color]" value="<?php echo esc_attr( ! empty( $options['login_background_color'] ) ? $options['login_background_color'] : '#f0f0f1' ); ?>" />
-						<small><?php esc_html_e( 'Changes the login page background while keeping the form box white.', 'nexisettings' ); ?></small>
+				<div class="adminvoro-branding-grid">
+					<label class="adminvoro-field">
+						<span><?php esc_html_e( 'Login background color', 'adminvoro' ); ?></span>
+						<input type="color" name="<?php echo esc_attr( ADMINVORO_OPTION ); ?>[login_background_color]" value="<?php echo esc_attr( ! empty( $options['login_background_color'] ) ? $options['login_background_color'] : '#f0f0f1' ); ?>" />
+						<small><?php esc_html_e( 'Changes the login page background while keeping the form box white.', 'adminvoro' ); ?></small>
 					</label>
 
-					<label class="nexisettings-field">
-						<span><?php esc_html_e( 'Outside text color', 'nexisettings' ); ?></span>
-						<input type="color" name="<?php echo esc_attr( NEXISETTINGS_OPTION ); ?>[login_text_color]" value="<?php echo esc_attr( ! empty( $options['login_text_color'] ) ? $options['login_text_color'] : '#3c434a' ); ?>" />
-						<small><?php esc_html_e( 'Applies to text outside the login form, including your custom message.', 'nexisettings' ); ?></small>
+					<label class="adminvoro-field">
+						<span><?php esc_html_e( 'Outside text color', 'adminvoro' ); ?></span>
+						<input type="color" name="<?php echo esc_attr( ADMINVORO_OPTION ); ?>[login_text_color]" value="<?php echo esc_attr( ! empty( $options['login_text_color'] ) ? $options['login_text_color'] : '#3c434a' ); ?>" />
+						<small><?php esc_html_e( 'Applies to text outside the login form, including your custom message.', 'adminvoro' ); ?></small>
 					</label>
 
-					<label class="nexisettings-field">
-						<span><?php esc_html_e( 'Outside link color', 'nexisettings' ); ?></span>
-						<input type="color" name="<?php echo esc_attr( NEXISETTINGS_OPTION ); ?>[login_link_color]" value="<?php echo esc_attr( ! empty( $options['login_link_color'] ) ? $options['login_link_color'] : '#2271b1' ); ?>" />
-						<small><?php esc_html_e( 'Applies to links outside the login form.', 'nexisettings' ); ?></small>
+					<label class="adminvoro-field">
+						<span><?php esc_html_e( 'Outside link color', 'adminvoro' ); ?></span>
+						<input type="color" name="<?php echo esc_attr( ADMINVORO_OPTION ); ?>[login_link_color]" value="<?php echo esc_attr( ! empty( $options['login_link_color'] ) ? $options['login_link_color'] : '#2271b1' ); ?>" />
+						<small><?php esc_html_e( 'Applies to links outside the login form.', 'adminvoro' ); ?></small>
 					</label>
 
-					<label class="nexisettings-field">
-						<span><?php esc_html_e( 'Text below logo size', 'nexisettings' ); ?></span>
-						<input type="number" min="12" max="48" step="1" name="<?php echo esc_attr( NEXISETTINGS_OPTION ); ?>[login_logo_text_size]" value="<?php echo esc_attr( absint( $options['login_logo_text_size'] ) ); ?>" />
-						<small><?php esc_html_e( 'Controls the custom message size in pixels. The message is centered automatically.', 'nexisettings' ); ?></small>
+					<label class="adminvoro-field">
+						<span><?php esc_html_e( 'Text below logo size', 'adminvoro' ); ?></span>
+						<input type="number" min="12" max="48" step="1" name="<?php echo esc_attr( ADMINVORO_OPTION ); ?>[login_logo_text_size]" value="<?php echo esc_attr( absint( $options['login_logo_text_size'] ) ); ?>" />
+						<small><?php esc_html_e( 'Controls the custom message size in pixels. The message is centered automatically.', 'adminvoro' ); ?></small>
 					</label>
 				</div>
 			</div>
 
-			<?php submit_button( esc_html__( 'Save Login Branding', 'nexisettings' ), 'primary', 'submit', false ); ?>
-			<button type="submit" class="button button-secondary" name="<?php echo esc_attr( NEXISETTINGS_OPTION ); ?>[reset_login_branding]" value="1"><?php esc_html_e( 'Reset to Default', 'nexisettings' ); ?></button>
+			<?php submit_button( esc_html__( 'Save Login Branding', 'adminvoro' ), 'primary', 'submit', false ); ?>
+			<button type="submit" class="button button-secondary" name="<?php echo esc_attr( ADMINVORO_OPTION ); ?>[reset_login_branding]" value="1"><?php esc_html_e( 'Reset to Default', 'adminvoro' ); ?></button>
 		</form>
 		<?php
 	}
@@ -888,28 +888,28 @@ class NexiSettings_Admin {
 	 */
 	private function render_redirects_tab( $redirects ) {
 		?>
-		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="nexisettings-form nexisettings-redirects-form">
-			<input type="hidden" name="action" value="nexisettings_save_redirects" />
-			<?php wp_nonce_field( 'nexisettings_save_redirects' ); ?>
+		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="adminvoro-form adminvoro-redirects-form">
+			<input type="hidden" name="action" value="adminvoro_save_redirects" />
+			<?php wp_nonce_field( 'adminvoro_save_redirects' ); ?>
 
-			<div class="nexisettings-card">
-				<div class="nexisettings-card-header">
+			<div class="adminvoro-card">
+				<div class="adminvoro-card-header">
 					<div>
-						<h2><?php esc_html_e( 'Redirect Manager', 'nexisettings' ); ?></h2>
-						<p><?php esc_html_e( 'Create simple frontend 301 and 302 redirects without touching wp-admin, AJAX, cron, or REST requests.', 'nexisettings' ); ?></p>
+						<h2><?php esc_html_e( 'Redirect Manager', 'adminvoro' ); ?></h2>
+						<p><?php esc_html_e( 'Create simple frontend 301 and 302 redirects without touching wp-admin, AJAX, cron, or REST requests.', 'adminvoro' ); ?></p>
 					</div>
-					<button type="button" class="button button-secondary nexisettings-add-redirect"><?php esc_html_e( 'Add Redirect', 'nexisettings' ); ?></button>
+					<button type="button" class="button button-secondary adminvoro-add-redirect"><?php esc_html_e( 'Add Redirect', 'adminvoro' ); ?></button>
 				</div>
 
-				<div class="nexisettings-table-wrap">
-					<table class="widefat fixed striped nexisettings-redirects-table">
+				<div class="adminvoro-table-wrap">
+					<table class="widefat fixed striped adminvoro-redirects-table">
 						<thead>
 							<tr>
-								<th><?php esc_html_e( 'Source URL', 'nexisettings' ); ?></th>
-								<th><?php esc_html_e( 'Destination URL', 'nexisettings' ); ?></th>
-								<th><?php esc_html_e( 'Type', 'nexisettings' ); ?></th>
-								<th><?php esc_html_e( 'Enabled', 'nexisettings' ); ?></th>
-								<th><?php esc_html_e( 'Delete', 'nexisettings' ); ?></th>
+								<th><?php esc_html_e( 'Source URL', 'adminvoro' ); ?></th>
+								<th><?php esc_html_e( 'Destination URL', 'adminvoro' ); ?></th>
+								<th><?php esc_html_e( 'Type', 'adminvoro' ); ?></th>
+								<th><?php esc_html_e( 'Enabled', 'adminvoro' ); ?></th>
+								<th><?php esc_html_e( 'Delete', 'adminvoro' ); ?></th>
 							</tr>
 						</thead>
 						<tbody>
@@ -933,13 +933,13 @@ class NexiSettings_Admin {
 						</tbody>
 					</table>
 				</div>
-				<p class="description"><?php esc_html_e( 'Use root-relative URLs like /old-page or absolute http(s) URLs. Protocol-relative URLs are rejected.', 'nexisettings' ); ?></p>
+				<p class="description"><?php esc_html_e( 'Use root-relative URLs like /old-page or absolute http(s) URLs. Protocol-relative URLs are rejected.', 'adminvoro' ); ?></p>
 			</div>
 
-			<?php submit_button( esc_html__( 'Save Redirects', 'nexisettings' ) ); ?>
+			<?php submit_button( esc_html__( 'Save Redirects', 'adminvoro' ) ); ?>
 		</form>
 
-		<script type="text/template" id="nexisettings-redirect-row-template">
+		<template id="adminvoro-redirect-row-template">
 			<?php
 			$this->render_redirect_row(
 				'__index__',
@@ -952,7 +952,7 @@ class NexiSettings_Admin {
 				)
 			);
 			?>
-		</script>
+		</template>
 		<?php
 	}
 
@@ -964,23 +964,23 @@ class NexiSettings_Admin {
 	 */
 	private function render_security_tab( $options ) {
 		?>
-		<form method="post" action="options.php" class="nexisettings-form nexisettings-options-form">
-			<?php settings_fields( 'nexisettings_options_group' ); ?>
-			<input type="hidden" name="<?php echo esc_attr( NEXISETTINGS_OPTION ); ?>[active_tab]" value="security" />
-			<div class="nexisettings-card">
-				<div class="nexisettings-card-header">
+		<form method="post" action="options.php" class="adminvoro-form adminvoro-options-form">
+			<?php settings_fields( 'adminvoro_options_group' ); ?>
+			<input type="hidden" name="<?php echo esc_attr( ADMINVORO_OPTION ); ?>[active_tab]" value="security" />
+			<div class="adminvoro-card">
+				<div class="adminvoro-card-header">
 					<div>
-						<h2><?php esc_html_e( 'Basic Security', 'nexisettings' ); ?></h2>
-						<p><?php esc_html_e( 'Enable small hardening improvements that reduce common public signals and attack surfaces.', 'nexisettings' ); ?></p>
+						<h2><?php esc_html_e( 'Basic Security', 'adminvoro' ); ?></h2>
+						<p><?php esc_html_e( 'Enable small hardening improvements that reduce common public signals and attack surfaces.', 'adminvoro' ); ?></p>
 					</div>
 				</div>
 				<?php
-				$this->render_toggle( NEXISETTINGS_OPTION . '[disable_xmlrpc]', 'disable_xmlrpc', ! empty( $options['disable_xmlrpc'] ), esc_html__( 'Disable XML-RPC', 'nexisettings' ), esc_html__( 'Turns off XML-RPC authentication and remote publishing endpoints through WordPress filters.', 'nexisettings' ) );
-				$this->render_toggle( NEXISETTINGS_OPTION . '[disable_user_enumeration]', 'disable_user_enumeration', ! empty( $options['disable_user_enumeration'] ), esc_html__( 'Disable user enumeration', 'nexisettings' ), esc_html__( 'Blocks common ?author=1 discovery requests for logged-out visitors.', 'nexisettings' ) );
-				$this->render_toggle( NEXISETTINGS_OPTION . '[hide_wp_version]', 'hide_wp_version', ! empty( $options['hide_wp_version'] ), esc_html__( 'Hide WordPress version', 'nexisettings' ), esc_html__( 'Removes the generator meta tag and generator output.', 'nexisettings' ) );
+				$this->render_toggle( ADMINVORO_OPTION . '[disable_xmlrpc]', 'disable_xmlrpc', ! empty( $options['disable_xmlrpc'] ), esc_html__( 'Disable XML-RPC', 'adminvoro' ), esc_html__( 'Turns off XML-RPC authentication and remote publishing endpoints through WordPress filters.', 'adminvoro' ) );
+				$this->render_toggle( ADMINVORO_OPTION . '[disable_user_enumeration]', 'disable_user_enumeration', ! empty( $options['disable_user_enumeration'] ), esc_html__( 'Disable user enumeration', 'adminvoro' ), esc_html__( 'Blocks common ?author=1 discovery requests for logged-out visitors.', 'adminvoro' ) );
+				$this->render_toggle( ADMINVORO_OPTION . '[hide_wp_version]', 'hide_wp_version', ! empty( $options['hide_wp_version'] ), esc_html__( 'Hide WordPress version', 'adminvoro' ), esc_html__( 'Removes the generator meta tag and generator output.', 'adminvoro' ) );
 				?>
 			</div>
-			<?php submit_button( esc_html__( 'Save Security Settings', 'nexisettings' ) ); ?>
+			<?php submit_button( esc_html__( 'Save Security Settings', 'adminvoro' ) ); ?>
 		</form>
 		<?php
 	}
@@ -993,22 +993,22 @@ class NexiSettings_Admin {
 	 */
 	private function render_performance_tab( $options ) {
 		?>
-		<form method="post" action="options.php" class="nexisettings-form nexisettings-options-form">
-			<?php settings_fields( 'nexisettings_options_group' ); ?>
-			<input type="hidden" name="<?php echo esc_attr( NEXISETTINGS_OPTION ); ?>[active_tab]" value="performance" />
-			<div class="nexisettings-card">
-				<div class="nexisettings-card-header">
+		<form method="post" action="options.php" class="adminvoro-form adminvoro-options-form">
+			<?php settings_fields( 'adminvoro_options_group' ); ?>
+			<input type="hidden" name="<?php echo esc_attr( ADMINVORO_OPTION ); ?>[active_tab]" value="performance" />
+			<div class="adminvoro-card">
+				<div class="adminvoro-card-header">
 					<div>
-						<h2><?php esc_html_e( 'Performance Tweaks', 'nexisettings' ); ?></h2>
-						<p><?php esc_html_e( 'Remove optional WordPress frontend assets that many sites do not need.', 'nexisettings' ); ?></p>
+						<h2><?php esc_html_e( 'Performance Tweaks', 'adminvoro' ); ?></h2>
+						<p><?php esc_html_e( 'Remove optional WordPress frontend assets that many sites do not need.', 'adminvoro' ); ?></p>
 					</div>
 				</div>
 				<?php
-				$this->render_toggle( NEXISETTINGS_OPTION . '[disable_emojis]', 'disable_emojis', ! empty( $options['disable_emojis'] ), esc_html__( 'Disable emojis', 'nexisettings' ), esc_html__( 'Removes WordPress emoji detection scripts, styles, filters, and DNS prefetch hints.', 'nexisettings' ) );
-				$this->render_toggle( NEXISETTINGS_OPTION . '[disable_embeds]', 'disable_embeds', ! empty( $options['disable_embeds'] ), esc_html__( 'Disable embeds', 'nexisettings' ), esc_html__( 'Disables oEmbed discovery links and dequeues the wp-embed script on the frontend.', 'nexisettings' ) );
+				$this->render_toggle( ADMINVORO_OPTION . '[disable_emojis]', 'disable_emojis', ! empty( $options['disable_emojis'] ), esc_html__( 'Disable emojis', 'adminvoro' ), esc_html__( 'Removes WordPress emoji detection scripts, styles, filters, and DNS prefetch hints.', 'adminvoro' ) );
+				$this->render_toggle( ADMINVORO_OPTION . '[disable_embeds]', 'disable_embeds', ! empty( $options['disable_embeds'] ), esc_html__( 'Disable embeds', 'adminvoro' ), esc_html__( 'Disables oEmbed discovery links and dequeues the wp-embed script on the frontend.', 'adminvoro' ) );
 				?>
 			</div>
-			<?php submit_button( esc_html__( 'Save Performance Settings', 'nexisettings' ) ); ?>
+			<?php submit_button( esc_html__( 'Save Performance Settings', 'adminvoro' ) ); ?>
 		</form>
 		<?php
 	}
@@ -1021,26 +1021,26 @@ class NexiSettings_Admin {
 	 */
 	private function render_admin_branding_tab( $options ) {
 		?>
-		<form method="post" action="options.php" class="nexisettings-form nexisettings-options-form">
-			<?php settings_fields( 'nexisettings_options_group' ); ?>
-			<input type="hidden" name="<?php echo esc_attr( NEXISETTINGS_OPTION ); ?>[active_tab]" value="admin-branding" />
-			<div class="nexisettings-card">
-				<div class="nexisettings-card-header">
+		<form method="post" action="options.php" class="adminvoro-form adminvoro-options-form">
+			<?php settings_fields( 'adminvoro_options_group' ); ?>
+			<input type="hidden" name="<?php echo esc_attr( ADMINVORO_OPTION ); ?>[active_tab]" value="admin-branding" />
+			<div class="adminvoro-card">
+				<div class="adminvoro-card-header">
 					<div>
-						<h2><?php esc_html_e( 'Admin Branding', 'nexisettings' ); ?></h2>
-						<p><?php esc_html_e( 'Replace the default WordPress admin footer with your own message.', 'nexisettings' ); ?></p>
+						<h2><?php esc_html_e( 'Admin Branding', 'adminvoro' ); ?></h2>
+						<p><?php esc_html_e( 'Replace the default WordPress admin footer with your own message.', 'adminvoro' ); ?></p>
 					</div>
 				</div>
 				<?php
-				$this->render_toggle( NEXISETTINGS_OPTION . '[enable_admin_footer_text]', 'enable_admin_footer_text', ! empty( $options['enable_admin_footer_text'] ), esc_html__( 'Enable custom admin footer', 'nexisettings' ), esc_html__( 'When enabled, the footer text below replaces the default WordPress footer text.', 'nexisettings' ) );
+				$this->render_toggle( ADMINVORO_OPTION . '[enable_admin_footer_text]', 'enable_admin_footer_text', ! empty( $options['enable_admin_footer_text'] ), esc_html__( 'Enable custom admin footer', 'adminvoro' ), esc_html__( 'When enabled, the footer text below replaces the default WordPress footer text.', 'adminvoro' ) );
 				?>
-				<label class="nexisettings-field">
-					<span><?php esc_html_e( 'Custom admin footer text', 'nexisettings' ); ?></span>
-					<textarea name="<?php echo esc_attr( NEXISETTINGS_OPTION ); ?>[custom_admin_footer_text]" rows="4"><?php echo esc_textarea( $options['custom_admin_footer_text'] ); ?></textarea>
-					<small><?php esc_html_e( 'Basic formatting is allowed. Unsafe HTML is removed when saved.', 'nexisettings' ); ?></small>
+				<label class="adminvoro-field">
+					<span><?php esc_html_e( 'Custom admin footer text', 'adminvoro' ); ?></span>
+					<textarea name="<?php echo esc_attr( ADMINVORO_OPTION ); ?>[custom_admin_footer_text]" rows="4"><?php echo esc_textarea( $options['custom_admin_footer_text'] ); ?></textarea>
+					<small><?php esc_html_e( 'Basic formatting is allowed. Unsafe HTML is removed when saved.', 'adminvoro' ); ?></small>
 				</label>
 			</div>
-			<?php submit_button( esc_html__( 'Save Admin Branding', 'nexisettings' ) ); ?>
+			<?php submit_button( esc_html__( 'Save Admin Branding', 'adminvoro' ) ); ?>
 		</form>
 		<?php
 	}
@@ -1056,14 +1056,14 @@ class NexiSettings_Admin {
 	 * @return void
 	 */
 	private function render_toggle( $name, $id, $checked, $label, $description ) {
-		$field_id = 'nexisettings-' . sanitize_key( $id );
+		$field_id = 'adminvoro-' . sanitize_key( $id );
 		?>
-		<div class="nexisettings-toggle-row">
+		<div class="adminvoro-toggle-row">
 			<div>
 				<label for="<?php echo esc_attr( $field_id ); ?>"><?php echo esc_html( $label ); ?></label>
 				<small><?php echo esc_html( $description ); ?></small>
 			</div>
-			<label class="nexisettings-switch" aria-label="<?php echo esc_attr( $label ); ?>">
+			<label class="adminvoro-switch" aria-label="<?php echo esc_attr( $label ); ?>">
 				<input id="<?php echo esc_attr( $field_id ); ?>" type="checkbox" name="<?php echo esc_attr( $name ); ?>" value="1" <?php checked( $checked ); ?> />
 				<span></span>
 			</label>
@@ -1079,7 +1079,7 @@ class NexiSettings_Admin {
 	 * @return void
 	 */
 	private function render_redirect_row( $index, $redirect ) {
-		$name = 'nexisettings_redirects[' . $index . ']';
+		$name = 'adminvoro_redirects[' . $index . ']';
 		?>
 		<tr>
 			<td>
@@ -1096,14 +1096,14 @@ class NexiSettings_Admin {
 				</select>
 			</td>
 			<td>
-				<label class="nexisettings-switch nexisettings-switch-small">
+				<label class="adminvoro-switch adminvoro-switch-small">
 					<input type="checkbox" name="<?php echo esc_attr( $name ); ?>[enabled]" value="1" <?php checked( ! isset( $redirect['enabled'] ) || ! empty( $redirect['enabled'] ) ); ?> />
 					<span></span>
 				</label>
 			</td>
 			<td>
-				<input type="hidden" class="nexisettings-delete-value" name="<?php echo esc_attr( $name ); ?>[delete]" value="0" />
-				<button type="button" class="button-link-delete nexisettings-delete-row"><?php esc_html_e( 'Delete', 'nexisettings' ); ?></button>
+				<input type="hidden" class="adminvoro-delete-value" name="<?php echo esc_attr( $name ); ?>[delete]" value="0" />
+				<button type="button" class="button-link-delete adminvoro-delete-row"><?php esc_html_e( 'Delete', 'adminvoro' ); ?></button>
 			</td>
 		</tr>
 		<?php
@@ -1116,12 +1116,12 @@ class NexiSettings_Admin {
 	 */
 	private function get_tabs() {
 		return array(
-			'login-security' => __( 'Login Security', 'nexisettings' ),
-			'login-branding' => __( 'Login Branding', 'nexisettings' ),
-			'redirects'      => __( 'Redirects', 'nexisettings' ),
-			'security'       => __( 'Security', 'nexisettings' ),
-			'performance'    => __( 'Performance', 'nexisettings' ),
-			'admin-branding' => __( 'Admin Branding', 'nexisettings' ),
+			'login-security' => __( 'Login Security', 'adminvoro' ),
+			'login-branding' => __( 'Login Branding', 'adminvoro' ),
+			'redirects'      => __( 'Redirects', 'adminvoro' ),
+			'security'       => __( 'Security', 'adminvoro' ),
+			'performance'    => __( 'Performance', 'adminvoro' ),
+			'admin-branding' => __( 'Admin Branding', 'adminvoro' ),
 		);
 	}
 
@@ -1160,7 +1160,7 @@ class NexiSettings_Admin {
 	 */
 	private function set_admin_notice( $message, $type = 'success' ) {
 		set_transient(
-			'nexisettings_admin_notice_' . get_current_user_id(),
+			'adminvoro_admin_notice_' . get_current_user_id(),
 			array(
 				'message' => sanitize_text_field( $message ),
 				'type'    => sanitize_key( $type ),
@@ -1175,7 +1175,7 @@ class NexiSettings_Admin {
 	 * @return void
 	 */
 	private function display_admin_notice() {
-		$key    = 'nexisettings_admin_notice_' . get_current_user_id();
+		$key    = 'adminvoro_admin_notice_' . get_current_user_id();
 		$notice = get_transient( $key );
 
 		if ( ! is_array( $notice ) || empty( $notice['message'] ) ) {

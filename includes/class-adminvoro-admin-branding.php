@@ -2,7 +2,7 @@
 /**
  * Admin branding.
  *
- * @package NexiSettings
+ * @package Adminvoro
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Handles custom admin footer text.
  */
-class NexiSettings_Admin_Branding {
+class Adminvoro_Admin_Branding {
 	/**
 	 * Plugin options.
 	 *
@@ -24,7 +24,7 @@ class NexiSettings_Admin_Branding {
 	 * Constructor.
 	 */
 	public function __construct() {
-		$this->options = NexiSettings::get_options();
+		$this->options = Adminvoro::get_options();
 
 		if ( ! empty( $this->options['enable_admin_footer_text'] ) && '' !== trim( $this->options['custom_admin_footer_text'] ) ) {
 			add_filter( 'admin_footer_text', array( $this, 'filter_admin_footer_text' ) );

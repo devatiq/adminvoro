@@ -2,7 +2,7 @@
 /**
  * Frontend redirect manager.
  *
- * @package NexiSettings
+ * @package Adminvoro
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Handles stored redirects on frontend requests.
  */
-class NexiSettings_Redirects {
+class Adminvoro_Redirects {
 	/**
 	 * Has a redirect already been processed in this request.
 	 *
@@ -34,7 +34,7 @@ class NexiSettings_Redirects {
 	 * @return void
 	 */
 	public function maybe_redirect() {
-		if ( $this->did_redirect || NexiSettings::is_protected_request_context() || is_user_logged_in() && is_admin() ) {
+		if ( $this->did_redirect || Adminvoro::is_protected_request_context() || is_user_logged_in() && is_admin() ) {
 			return;
 		}
 
@@ -77,7 +77,7 @@ class NexiSettings_Redirects {
 	 * @return array
 	 */
 	public static function get_redirects() {
-		$redirects = get_option( NEXISETTINGS_REDIRECTS_OPTION, array() );
+		$redirects = get_option( ADMINVORO_REDIRECTS_OPTION, array() );
 
 		if ( ! is_array( $redirects ) ) {
 			return array();

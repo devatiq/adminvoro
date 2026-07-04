@@ -2,7 +2,7 @@
 /**
  * Core plugin coordinator.
  *
- * @package NexiSettings
+ * @package Adminvoro
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -12,18 +12,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Loads dependencies and wires feature modules.
  */
-final class NexiSettings {
+final class Adminvoro {
 	/**
 	 * Singleton instance.
 	 *
-	 * @var NexiSettings|null
+	 * @var Adminvoro|null
 	 */
 	private static $instance = null;
 
 	/**
 	 * Get plugin instance.
 	 *
-	 * @return NexiSettings
+	 * @return Adminvoro
 	 */
 	public static function instance() {
 		if ( null === self::$instance ) {
@@ -39,12 +39,14 @@ final class NexiSettings {
 	 * @return void
 	 */
 	public static function activate() {
-		if ( false === get_option( NEXISETTINGS_OPTION, false ) ) {
-			add_option( NEXISETTINGS_OPTION, self::get_default_options() );
+		self::migrate_legacy_options();
+
+		if ( false === get_option( ADMINVORO_OPTION, false ) ) {
+			add_option( ADMINVORO_OPTION, self::get_default_options() );
 		}
 
-		if ( false === get_option( NEXISETTINGS_REDIRECTS_OPTION, false ) ) {
-			add_option( NEXISETTINGS_REDIRECTS_OPTION, array() );
+		if ( false === get_option( ADMINVORO_REDIRECTS_OPTION, false ) ) {
+			add_option( ADMINVORO_REDIRECTS_OPTION, array() );
 		}
 
 		flush_rewrite_rules();
@@ -65,12 +67,15 @@ final class NexiSettings {
 	 * @return void
 	 */
 	public function run() {
+		self::migrate_legacy_options();
+
+		add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
 		$this->load_dependencies();
 
 		add_action( 'init', array( $this, 'bootstrap_features' ), 0 );
 
 		if ( is_admin() ) {
-			new NexiSettings_Admin();
+			new Adminvoro_Admin();
 		}
 	}
 
@@ -80,11 +85,11 @@ final class NexiSettings {
 	 * @return void
 	 */
 	public function bootstrap_features() {
-		new NexiSettings_Login();
-		new NexiSettings_Redirects();
-		new NexiSettings_Security();
-		new NexiSettings_Performance();
-		new NexiSettings_Admin_Branding();
+		new Adminvoro_Login();
+		new Adminvoro_Redirects();
+		new Adminvoro_Security();
+		new Adminvoro_Performance();
+		new Adminvoro_Admin_Branding();
 	}
 
 	/**
@@ -93,15 +98,48 @@ final class NexiSettings {
 	 * @return void
 	 */
 	private function load_dependencies() {
-		require_once NEXISETTINGS_PATH . 'includes/class-nexisettings-login.php';
-		require_once NEXISETTINGS_PATH . 'includes/class-nexisettings-redirects.php';
-		require_once NEXISETTINGS_PATH . 'includes/class-nexisettings-security.php';
-		require_once NEXISETTINGS_PATH . 'includes/class-nexisettings-performance.php';
-		require_once NEXISETTINGS_PATH . 'includes/class-nexisettings-admin-branding.php';
+		require_once ADMINVORO_PATH . 'includes/class-adminvoro-login.php';
+		require_once ADMINVORO_PATH . 'includes/class-adminvoro-redirects.php';
+		require_once ADMINVORO_PATH . 'includes/class-adminvoro-security.php';
+		require_once ADMINVORO_PATH . 'includes/class-adminvoro-performance.php';
+		require_once ADMINVORO_PATH . 'includes/class-adminvoro-admin-branding.php';
 
 		if ( is_admin() ) {
-			require_once NEXISETTINGS_PATH . 'includes/class-nexisettings-admin.php';
+			require_once ADMINVORO_PATH . 'includes/class-adminvoro-admin.php';
 		}
+	}
+
+	/**
+	 * Copy legacy NexiSettings options to Adminvoro option names when needed.
+	 *
+	 * @return void
+	 */
+	public static function migrate_legacy_options() {
+		$option_map = array(
+			'nexisettings_options'  => ADMINVORO_OPTION,
+			'nexisettings_redirects' => ADMINVORO_REDIRECTS_OPTION,
+		);
+
+		foreach ( $option_map as $legacy_option => $new_option ) {
+			if ( false !== get_option( $new_option, false ) ) {
+				continue;
+			}
+
+			$legacy_value = get_option( $legacy_option, false );
+
+			if ( false !== $legacy_value ) {
+				add_option( $new_option, $legacy_value );
+			}
+		}
+	}
+
+	/**
+	 * Load plugin translations.
+	 *
+	 * @return void
+	 */
+	public function load_textdomain() {
+		load_plugin_textdomain( 'adminvoro', false, dirname( ADMINVORO_BASENAME ) . '/languages' );
 	}
 
 	/**
@@ -138,7 +176,7 @@ final class NexiSettings {
 	 * @return array
 	 */
 	public static function get_options() {
-		$options = get_option( NEXISETTINGS_OPTION, array() );
+		$options = get_option( ADMINVORO_OPTION, array() );
 
 		if ( ! is_array( $options ) ) {
 			$options = array();
@@ -153,7 +191,7 @@ final class NexiSettings {
 	 * @return bool
 	 */
 	public static function is_custom_login_disabled() {
-		return defined( 'NEXISETTINGS_DISABLE_CUSTOM_LOGIN' ) && NEXISETTINGS_DISABLE_CUSTOM_LOGIN;
+		return defined( 'ADMINVORO_DISABLE_CUSTOM_LOGIN' ) && ADMINVORO_DISABLE_CUSTOM_LOGIN;
 	}
 
 	/**

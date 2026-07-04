@@ -2,7 +2,7 @@
 /**
  * Security toggles.
  *
- * @package NexiSettings
+ * @package Adminvoro
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Applies basic hardening options.
  */
-class NexiSettings_Security {
+class Adminvoro_Security {
 	/**
 	 * Plugin options.
 	 *
@@ -24,7 +24,7 @@ class NexiSettings_Security {
 	 * Constructor.
 	 */
 	public function __construct() {
-		$this->options = NexiSettings::get_options();
+		$this->options = Adminvoro::get_options();
 
 		if ( ! empty( $this->options['disable_xmlrpc'] ) ) {
 			add_action( 'init', array( $this, 'block_xmlrpc_request' ), 0 );
@@ -64,8 +64,8 @@ class NexiSettings_Security {
 			status_header( 403 );
 			nocache_headers();
 			wp_die(
-				esc_html__( 'XML-RPC is disabled.', 'nexisettings' ),
-				esc_html__( 'Forbidden', 'nexisettings' ),
+				esc_html__( 'XML-RPC is disabled.', 'adminvoro' ),
+				esc_html__( 'Forbidden', 'adminvoro' ),
 				array( 'response' => 403 )
 			);
 		}
@@ -91,7 +91,7 @@ class NexiSettings_Security {
 	 * @return void
 	 */
 	public function block_user_enumeration() {
-		if ( NexiSettings::is_protected_request_context() || is_user_logged_in() ) {
+		if ( Adminvoro::is_protected_request_context() || is_user_logged_in() ) {
 			return;
 		}
 
@@ -152,8 +152,8 @@ class NexiSettings_Security {
 
 		if ( preg_match( '#^/wp/v2/users(?:/|$)#', $route ) ) {
 			return new WP_Error(
-				'nexisettings_user_enumeration_disabled',
-				esc_html__( 'User enumeration is disabled.', 'nexisettings' ),
+				'adminvoro_user_enumeration_disabled',
+				esc_html__( 'User enumeration is disabled.', 'adminvoro' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -217,8 +217,8 @@ class NexiSettings_Security {
 		status_header( 404 );
 		nocache_headers();
 		wp_die(
-			esc_html__( 'Not Found', 'nexisettings' ),
-			esc_html__( 'Not Found', 'nexisettings' ),
+			esc_html__( 'Not Found', 'adminvoro' ),
+			esc_html__( 'Not Found', 'adminvoro' ),
 			array( 'response' => 404 )
 		);
 	}
