@@ -398,30 +398,26 @@ class Adminvoro_Login {
 	 * @return bool
 	 */
 	private function is_allowed_admin_endpoint( $request_path ) {
-		$allowed_endpoints = array(
-			$this->get_admin_file_path( 'admin-ajax.php' ),
-			$this->get_admin_file_path( 'admin-post.php' ),
-		);
-
-		$allowed_endpoints = array_filter( $allowed_endpoints );
-
-		return in_array( $request_path, $allowed_endpoints, true );
-	}
-
-	/**
-	 * Get a normalized request path for an admin file URL.
-	 *
-	 * @param string $admin_file Admin file name.
-	 * @return string
-	 */
-	private function get_admin_file_path( $admin_file ) {
-		$path = wp_parse_url( admin_url( $admin_file ), PHP_URL_PATH );
-
-		if ( ! is_string( $path ) || '' === $path ) {
-			return '';
+		if ( '' === $request_path ) {
+			return false;
 		}
 
-		return $this->normalize_path( $path );
+		$ajax_path = wp_parse_url( admin_url( 'admin-ajax.php' ), PHP_URL_PATH );
+		$post_path = wp_parse_url( admin_url( 'admin-post.php' ), PHP_URL_PATH );
+
+		$allowed_paths = array();
+
+		if ( is_string( $ajax_path ) && '' !== $ajax_path ) {
+			$allowed_paths[] = $this->normalize_path( $ajax_path );
+		}
+
+		if ( is_string( $post_path ) && '' !== $post_path ) {
+			$allowed_paths[] = $this->normalize_path( $post_path );
+		}
+
+		$allowed_paths = array_filter( $allowed_paths );
+
+		return in_array( $request_path, $allowed_paths, true );
 	}
 
 	/**

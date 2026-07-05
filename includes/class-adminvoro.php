@@ -39,8 +39,6 @@ final class Adminvoro {
 	 * @return void
 	 */
 	public static function activate() {
-		self::migrate_legacy_options();
-
 		if ( false === get_option( ADMINVORO_OPTION, false ) ) {
 			add_option( ADMINVORO_OPTION, self::get_default_options() );
 		}
@@ -67,8 +65,6 @@ final class Adminvoro {
 	 * @return void
 	 */
 	public function run() {
-		self::migrate_legacy_options();
-
 		$this->load_dependencies();
 
 		add_action( 'init', array( $this, 'bootstrap_features' ), 0 );
@@ -105,30 +101,6 @@ final class Adminvoro {
 
 		if ( is_admin() ) {
 			require_once ADMINVORO_PATH . 'includes/class-adminvoro-admin.php';
-		}
-	}
-
-	/**
-	 * Copy legacy NexiSettings options to Adminvoro option names when needed.
-	 *
-	 * @return void
-	 */
-	public static function migrate_legacy_options() {
-		$option_map = array(
-			'nexisettings_options'  => ADMINVORO_OPTION,
-			'nexisettings_redirects' => ADMINVORO_REDIRECTS_OPTION,
-		);
-
-		foreach ( $option_map as $legacy_option => $new_option ) {
-			if ( false !== get_option( $new_option, false ) ) {
-				continue;
-			}
-
-			$legacy_value = get_option( $legacy_option, false );
-
-			if ( false !== $legacy_value ) {
-				add_option( $new_option, $legacy_value );
-			}
 		}
 	}
 

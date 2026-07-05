@@ -12,8 +12,6 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 $adminvoro_options = array(
 	'adminvoro_options',
 	'adminvoro_redirects',
-	'nexisettings_options',
-	'nexisettings_redirects',
 );
 
 foreach ( $adminvoro_options as $adminvoro_option ) {
