@@ -8,7 +8,7 @@ Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Adminvoro Toolkit helps you manage custom login URLs, login branding, redirects, and essential admin/site controls from one lightweight WordPress plugin.
+Manage custom login URLs, login branding, redirects, and admin site controls from one lightweight WordPress plugin.
 
 == Description ==
 

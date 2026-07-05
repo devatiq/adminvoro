@@ -69,7 +69,6 @@ final class Adminvoro {
 	public function run() {
 		self::migrate_legacy_options();
 
-		add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
 		$this->load_dependencies();
 
 		add_action( 'init', array( $this, 'bootstrap_features' ), 0 );
@@ -131,15 +130,6 @@ final class Adminvoro {
 				add_option( $new_option, $legacy_value );
 			}
 		}
-	}
-
-	/**
-	 * Load plugin translations.
-	 *
-	 * @return void
-	 */
-	public function load_textdomain() {
-		load_plugin_textdomain( 'adminvoro', false, dirname( ADMINVORO_BASENAME ) . '/languages' );
 	}
 
 	/**
