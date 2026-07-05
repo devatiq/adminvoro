@@ -399,11 +399,47 @@ class Adminvoro_Login {
 	 */
 	private function is_allowed_admin_endpoint( $request_path ) {
 		$allowed_endpoints = array(
-			'wp-admin/admin-ajax.php',
-			'wp-admin/admin-post.php',
+			$this->get_admin_file_path( 'admin-ajax.php' ),
+			$this->get_admin_file_path( 'admin-post.php' ),
 		);
 
+		$allowed_endpoints = array_filter( $allowed_endpoints );
+
 		return in_array( $request_path, $allowed_endpoints, true );
+	}
+
+	/**
+	 * Get a normalized request path for an admin file URL.
+	 *
+	 * @param string $admin_file Admin file name.
+	 * @return string
+	 */
+	private function get_admin_file_path( $admin_file ) {
+		$path = wp_parse_url( admin_url( $admin_file ), PHP_URL_PATH );
+
+		if ( ! is_string( $path ) || '' === $path ) {
+			return '';
+		}
+
+		return $this->normalize_path( $path );
+	}
+
+	/**
+	 * Normalize a URL path relative to the site home path.
+	 *
+	 * @param string $path URL path.
+	 * @return string
+	 */
+	private function normalize_path( $path ) {
+		$home_path = wp_parse_url( home_url( '/' ), PHP_URL_PATH );
+		$home_path = is_string( $home_path ) ? trim( $home_path, '/' ) : '';
+		$path      = trim( (string) $path, '/' );
+
+		if ( '' !== $home_path && 0 === strpos( $path, $home_path . '/' ) ) {
+			$path = substr( $path, strlen( $home_path ) + 1 );
+		}
+
+		return trim( $path, '/' );
 	}
 
 	/**
@@ -419,15 +455,7 @@ class Adminvoro_Login {
 			return '';
 		}
 
-		$home_path = wp_parse_url( home_url( '/' ), PHP_URL_PATH );
-		$home_path = is_string( $home_path ) ? trim( $home_path, '/' ) : '';
-		$path      = trim( $path, '/' );
-
-		if ( '' !== $home_path && 0 === strpos( $path, $home_path . '/' ) ) {
-			$path = substr( $path, strlen( $home_path ) + 1 );
-		}
-
-		return trim( $path, '/' );
+		return $this->normalize_path( $path );
 	}
 
 	/**
