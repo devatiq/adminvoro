@@ -23,6 +23,32 @@
 			$field.find('input').prop('required', isCustom);
 		}
 
+		function initSlugPreview() {
+			var $input = $('#adminvoro-login-slug-input');
+			var $preview = $('#adminvoro-slug-preview');
+			var $previewUrl = $preview.find('.adminvoro-slug-preview-url');
+
+			if (!$input.length || !$preview.length) {
+				return;
+			}
+
+			var baseUrl = $input.closest('.adminvoro-prefix-input').find('span').text();
+
+			function updatePreview() {
+				var slug = $input.val().trim();
+
+				if (slug) {
+					$previewUrl.text(baseUrl + slug + '/');
+					$preview.addClass('has-value');
+				} else {
+					$previewUrl.text(baseUrl + 'your-slug/');
+					$preview.removeClass('has-value');
+				}
+			}
+
+			$input.on('input keyup change', updatePreview);
+		}
+
 		function setButtonState($form, isSaving) {
 			var $buttons = $form.find(':submit');
 			var $primaryButton = $form.data('clicked-submit') ? $($form.data('clicked-submit')) : $buttons.first();
@@ -181,6 +207,7 @@
 
 		$(document).on('change', 'select[name="adminvoro_options[login_block_action]"]', toggleCustomBlockUrlField);
 		toggleCustomBlockUrlField();
+		initSlugPreview();
 
 		$('.adminvoro-upload-logo').on('click', function (event) {
 			event.preventDefault();

@@ -208,7 +208,7 @@ class Adminvoro_Admin {
 			array(
 				'notices'          => $notices,
 				'options'          => $options,
-				'currentLoginHtml' => $this->get_current_login_notice_html( $options ),
+				'currentLoginHtml' => $this->get_current_login_notice_html_improved( $options ),
 				'logoUrl'          => $this->get_logo_preview_url( $options ),
 			)
 		);
@@ -735,6 +735,7 @@ class Adminvoro_Admin {
 	 * @return void
 	 */
 	private function render_login_security_tab( $options ) {
+		$is_active = ! empty( $options['enable_custom_login'] ) && '' !== $options['custom_login_slug'];
 		?>
 		<form method="post" action="options.php" class="adminvoro-form adminvoro-options-form">
 			<?php settings_fields( 'adminvoro_options_group' ); ?>
@@ -742,14 +743,28 @@ class Adminvoro_Admin {
 
 			<div class="adminvoro-card">
 				<div class="adminvoro-card-header">
-					<div>
-						<h2><?php esc_html_e( 'Custom Login URL', 'adminvoro' ); ?></h2>
-						<p><?php esc_html_e( 'Move public login access away from wp-login.php while preserving a safe admin fallback.', 'adminvoro' ); ?></p>
+					<div style="display:flex;align-items:flex-start;gap:16px;flex:1;min-width:0;">
+						<div class="adminvoro-card-header-icon">
+							<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+								<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+							</svg>
+						</div>
+						<div class="adminvoro-card-header-meta">
+							<h2><?php esc_html_e( 'Custom Login URL', 'adminvoro' ); ?></h2>
+							<p><?php esc_html_e( 'Move public login access away from wp-login.php while preserving a safe admin fallback.', 'adminvoro' ); ?></p>
+						</div>
+					</div>
+					<div style="flex-shrink:0;padding-top:4px;">
+						<?php if ( $is_active ) : ?>
+							<span class="adminvoro-status-badge is-active"><?php esc_html_e( 'Protected', 'adminvoro' ); ?></span>
+						<?php else : ?>
+							<span class="adminvoro-status-badge is-inactive"><?php esc_html_e( 'Not Active', 'adminvoro' ); ?></span>
+						<?php endif; ?>
 					</div>
 				</div>
 
 				<div class="adminvoro-current-login-wrap">
-					<?php echo wp_kses_post( $this->get_current_login_notice_html( $options ) ); ?>
+					<?php echo wp_kses_post( $this->get_current_login_notice_html_improved( $options ) ); ?>
 				</div>
 
 				<?php
@@ -762,35 +777,103 @@ class Adminvoro_Admin {
 				);
 				?>
 
-				<label class="adminvoro-field">
-					<span><?php esc_html_e( 'Custom login slug', 'adminvoro' ); ?></span>
-					<div class="adminvoro-prefix-input">
-						<span><?php echo esc_html( trailingslashit( home_url() ) ); ?></span>
-						<input type="text" name="<?php echo esc_attr( ADMINVORO_OPTION ); ?>[custom_login_slug]" value="<?php echo esc_attr( $options['custom_login_slug'] ); ?>" placeholder="<?php esc_attr_e( 'my-login', 'adminvoro' ); ?>" />
+				<div class="adminvoro-field-section">
+					<p class="adminvoro-field-section-label"><?php esc_html_e( 'Login slug', 'adminvoro' ); ?></p>
+
+					<div class="adminvoro-field">
+						<span><?php esc_html_e( 'Custom login slug', 'adminvoro' ); ?></span>
+						<div class="adminvoro-prefix-input">
+							<span><?php echo esc_html( trailingslashit( home_url() ) ); ?></span>
+							<input
+								id="adminvoro-login-slug-input"
+								type="text"
+								name="<?php echo esc_attr( ADMINVORO_OPTION ); ?>[custom_login_slug]"
+								value="<?php echo esc_attr( $options['custom_login_slug'] ); ?>"
+								placeholder="<?php esc_attr_e( 'my-login', 'adminvoro' ); ?>"
+								autocomplete="off"
+							/>
+						</div>
+						<div
+							id="adminvoro-slug-preview"
+							class="adminvoro-slug-preview<?php echo esc_attr( $options['custom_login_slug'] ? ' has-value' : '' ); ?>"
+							aria-live="polite"
+						>
+							<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+							<span class="adminvoro-slug-preview-url"><?php echo esc_html( trailingslashit( home_url() ) . ( $options['custom_login_slug'] ?: __( 'your-slug', 'adminvoro' ) ) . '/' ); ?></span>
+						</div>
+						<small><?php esc_html_e( 'Use letters, numbers, and hyphens only. Reserved slugs like wp-admin, wp-content, login, and admin are blocked.', 'adminvoro' ); ?></small>
 					</div>
-					<small><?php esc_html_e( 'Use letters, numbers, and hyphens only. Reserved slugs like wp-admin, wp-content, login, and admin are blocked.', 'adminvoro' ); ?></small>
-				</label>
+				</div>
 
-				<label class="adminvoro-field">
-					<span><?php esc_html_e( 'When wp-login.php is visited', 'adminvoro' ); ?></span>
-					<select name="<?php echo esc_attr( ADMINVORO_OPTION ); ?>[login_block_action]">
-						<option value="404" <?php selected( $options['login_block_action'], '404' ); ?>><?php esc_html_e( 'Show 404', 'adminvoro' ); ?></option>
-						<option value="home" <?php selected( $options['login_block_action'], 'home' ); ?>><?php esc_html_e( 'Redirect to homepage', 'adminvoro' ); ?></option>
-						<option value="custom_url" <?php selected( $options['login_block_action'], 'custom_url' ); ?>><?php esc_html_e( 'Redirect to custom page URL', 'adminvoro' ); ?></option>
-					</select>
-					<small><?php esc_html_e( 'Logged-in users are never blocked from wp-login.php.', 'adminvoro' ); ?></small>
-				</label>
+				<div class="adminvoro-field-section">
+					<p class="adminvoro-field-section-label"><?php esc_html_e( 'Block action', 'adminvoro' ); ?></p>
 
-				<label class="adminvoro-field adminvoro-custom-block-url-field <?php echo esc_attr( 'custom_url' === $options['login_block_action'] ? '' : 'is-hidden' ); ?>">
-					<span><?php esc_html_e( 'Custom page URL', 'adminvoro' ); ?></span>
-					<input type="text" name="<?php echo esc_attr( ADMINVORO_OPTION ); ?>[login_block_custom_url]" value="<?php echo esc_attr( $options['login_block_custom_url'] ); ?>" placeholder="<?php echo esc_attr( home_url( '/login-help/' ) ); ?>" />
-					<small><?php esc_html_e( 'Use a same-site page URL such as /login-help/ or a full URL on this domain.', 'adminvoro' ); ?></small>
-				</label>
+					<div class="adminvoro-field">
+						<span><?php esc_html_e( 'When wp-login.php is visited', 'adminvoro' ); ?></span>
+						<select name="<?php echo esc_attr( ADMINVORO_OPTION ); ?>[login_block_action]">
+							<option value="404" <?php selected( $options['login_block_action'], '404' ); ?>><?php esc_html_e( 'Show 404 — Page not found error', 'adminvoro' ); ?></option>
+							<option value="home" <?php selected( $options['login_block_action'], 'home' ); ?>><?php esc_html_e( 'Redirect to homepage', 'adminvoro' ); ?></option>
+							<option value="custom_url" <?php selected( $options['login_block_action'], 'custom_url' ); ?>><?php esc_html_e( 'Redirect to custom page URL', 'adminvoro' ); ?></option>
+						</select>
+						<small><?php esc_html_e( 'Applies only to non-logged-in visitors. Logged-in users are never blocked from wp-login.php.', 'adminvoro' ); ?></small>
+					</div>
+
+					<div class="adminvoro-field adminvoro-custom-block-url-field <?php echo esc_attr( 'custom_url' === $options['login_block_action'] ? '' : 'is-hidden' ); ?>">
+						<span><?php esc_html_e( 'Custom page URL', 'adminvoro' ); ?></span>
+						<input
+							type="text"
+							name="<?php echo esc_attr( ADMINVORO_OPTION ); ?>[login_block_custom_url]"
+							value="<?php echo esc_attr( $options['login_block_custom_url'] ); ?>"
+							placeholder="<?php echo esc_attr( home_url( '/login-help/' ) ); ?>"
+						/>
+						<small><?php esc_html_e( 'Use a same-site page URL such as /login-help/ or a full URL on this domain.', 'adminvoro' ); ?></small>
+					</div>
+				</div>
 			</div>
 
 			<?php submit_button( esc_html__( 'Save Login Security', 'adminvoro' ) ); ?>
 		</form>
 		<?php
+	}
+
+	/**
+	 * Render improved current login notice HTML for the login-security tab.
+	 *
+	 * @param array $options Plugin options.
+	 * @return string
+	 */
+	private function get_current_login_notice_html_improved( $options ) {
+		ob_start();
+
+		if ( Adminvoro::is_custom_login_disabled() ) :
+			?>
+			<div class="adminvoro-alert adminvoro-alert-warning">
+				<div class="adminvoro-alert-icon">
+					<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+				</div>
+				<div class="adminvoro-alert-body">
+					<span class="adminvoro-alert-label"><?php esc_html_e( 'Disabled by constant', 'adminvoro' ); ?></span>
+					<?php esc_html_e( 'Custom login protection is disabled because ADMINVORO_DISABLE_CUSTOM_LOGIN is defined as true.', 'adminvoro' ); ?>
+				</div>
+			</div>
+			<?php
+		elseif ( ! empty( $options['enable_custom_login'] ) && '' !== $options['custom_login_slug'] ) :
+			$current_login_url = $this->get_current_login_url( $options );
+			?>
+			<div class="adminvoro-alert adminvoro-alert-success">
+				<div class="adminvoro-alert-icon">
+					<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+				</div>
+				<div class="adminvoro-alert-body">
+					<span class="adminvoro-alert-label"><?php esc_html_e( 'Your login URL', 'adminvoro' ); ?></span>
+					<a href="<?php echo esc_url( $current_login_url ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html( $current_login_url ); ?></a>
+					<span><?php esc_html_e( 'Bookmark this URL before logging out.', 'adminvoro' ); ?></span>
+				</div>
+			</div>
+			<?php
+		endif;
+
+		return ob_get_clean();
 	}
 
 	/**
