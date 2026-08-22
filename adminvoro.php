@@ -3,7 +3,7 @@
  * Plugin Name: Adminvoro Toolkit - Login, Redirects & Site Controls
  * Plugin URI: https://github.com/devatiq/adminvoro
  * Description: Manage custom login URLs, login branding, redirects, and essential admin/site controls from one lightweight toolkit.
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: Nexiby LLC
  * Author URI: https://nexiby.com/
  * License: GPLv2 or later
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-define('ADMINVORO_VERSION', '1.0.0');
+define('ADMINVORO_VERSION', '1.1.0');
 define('ADMINVORO_FILE', __FILE__);
 define('ADMINVORO_PATH', plugin_dir_path(__FILE__));
 define('ADMINVORO_URL', plugin_dir_url(__FILE__));

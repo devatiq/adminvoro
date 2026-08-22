@@ -1,10 +1,10 @@
 === Adminvoro Toolkit – Login, Redirects & Site Controls ===
-Contributors: nexibyllc
+Contributors: nexibyllc, atiqbd4ever
 Tags: custom login, login branding, redirects, security, performance
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -143,6 +143,20 @@ The plugin can be used on individual sites in a multisite installation. Settings
 
 == Changelog ==
 
+= 1.1.0 =
+* Improved Login Security tab UI/UX with a modern, premium design.
+* Added Inter font (Google Fonts) across the admin panel for improved typography.
+* Added animated status badge (Protected / Not Active) to the Custom Login URL card header.
+* Added shield SVG icon in a gradient circle to the card header.
+* Redesigned alert box with flex layout, contextual SVG icon, and a labelled heading.
+* Added live slug URL preview bar that updates as the user types the custom login slug.
+* Added visual field section separators (Login slug / Block action) for clearer layout.
+* Added gradient Save Login Security button with lift-on-hover animation.
+* Upgraded toggle switch to gradient blue with spring-bounce animation and glow shadow.
+* Improved toggle rows with hover glow and blue tint when the switch is active.
+* Improved form input focus states with a blue focus ring and subtle shadow.
+* Fixed: AJAX save response now uses the improved alert markup so icon and label are preserved after saving.
+
 = 1.0.0 =
 * Initial release.
 * Added custom login URL protection with configurable blocked-request behavior.
@@ -154,6 +168,9 @@ The plugin can be used on individual sites in a multisite installation. Settings
 * Added uninstall cleanup for plugin settings and redirect rules.
 
 == Upgrade Notice ==
+
+= 1.1.0 =
+Improves the Login Security settings tab with a redesigned card header, animated status badge, live slug preview, enhanced toggle switch, and a premium gradient save button. No functional changes.
 
 = 1.0.0 =
 Initial release of Adminvoro Toolkit.
