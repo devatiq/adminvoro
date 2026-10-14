@@ -1077,7 +1077,7 @@ class Adminvoro_Admin {
 				$this->render_toggle( ADMINVORO_OPTION . '[hide_wp_version]', 'hide_wp_version', ! empty( $options['hide_wp_version'] ), esc_html__( 'Hide WordPress version', 'adminvoro' ), esc_html__( 'Removes the generator meta tag and generator output.', 'adminvoro' ) );
 				$this->render_toggle( ADMINVORO_OPTION . '[block_public_files]', 'block_public_files', ! empty( $options['block_public_files'] ), esc_html__( 'Block public readme and license files', 'adminvoro' ), esc_html__( 'Blocks public access to /readme.html and /license.txt.', 'adminvoro' ) );
 				?>
-				<p class="description adminvoro-public-files-note" <?php hidden( empty( $options['block_public_files'] ) ); ?>>
+				<p class="description adminvoro-public-files-note"<?php if ( empty( $options['block_public_files'] ) ) : ?> hidden="hidden"<?php endif; ?>>
 					<?php esc_html_e( 'This setting works on servers that apply Apache or LiteSpeed rewrite rules. If these files remain publicly accessible, contact your hosting provider for assistance.', 'adminvoro' ); ?>
 				</p>
 			</div>
