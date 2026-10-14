@@ -73,7 +73,7 @@ class Adminvoro_Security {
 			return $rules;
 		}
 
-		$block_rule    = "RewriteRule ^(?:readme\\.html|license\\.txt)$ - [R=404,L,NC]\n";
+		$block_rule    = "RewriteRule ^(?:readme\\.html|license\\.txt)$ - [R=403,L,NC]\n";
 		$filtered_rules = preg_replace( '/(RewriteEngine On\s*)/', '${1}' . $block_rule, $rules, 1 );
 
 		return is_string( $filtered_rules ) ? $filtered_rules : $rules;
@@ -104,12 +104,12 @@ class Adminvoro_Security {
 			return;
 		}
 
-		status_header( 404 );
+		status_header( 403 );
 		nocache_headers();
 		wp_die(
-			esc_html__( 'Not Found', 'adminvoro' ),
-			esc_html__( 'Not Found', 'adminvoro' ),
-			array( 'response' => 404 )
+			esc_html__( 'Forbidden', 'adminvoro' ),
+			esc_html__( 'Forbidden', 'adminvoro' ),
+			array( 'response' => 403 )
 		);
 	}
 

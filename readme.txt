@@ -4,7 +4,7 @@ Tags: custom login, login branding, redirects, security, performance
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -49,6 +49,7 @@ Adminvoro uses WordPress safe redirect handling. Redirects to another domain wor
 * Disable XML-RPC requests and remove the `X-Pingback` response header.
 * Reduce logged-out user enumeration through author requests and public REST API user endpoints.
 * Remove WordPress generator output and the core version query string from matching script and stylesheet URLs.
+* Block public access to `/readme.html` and `/license.txt` with a 403 Forbidden response.
 
 These controls provide basic hardening only. Adminvoro Toolkit is not a firewall, malware scanner, backup solution, or replacement for a complete WordPress security service.
 
@@ -143,6 +144,10 @@ The plugin can be used on individual sites in a multisite installation. Settings
 
 == Changelog ==
 
+= 1.2.0 =
+* Added a Basic Security option to block public access to `/readme.html` and `/license.txt`.
+* Blocked information-file requests now return a 403 Forbidden response.
+
 = 1.1.0 =
 * Improved Login Security tab UI/UX with a modern, premium design.
 * Added Inter font (Google Fonts) across the admin panel for improved typography.
@@ -168,6 +173,9 @@ The plugin can be used on individual sites in a multisite installation. Settings
 * Added uninstall cleanup for plugin settings and redirect rules.
 
 == Upgrade Notice ==
+
+= 1.2.0 =
+Adds an optional Basic Security control that returns 403 Forbidden for public requests to `/readme.html` and `/license.txt`.
 
 = 1.1.0 =
 Improves the Login Security settings tab with a redesigned card header, animated status badge, live slug preview, enhanced toggle switch, and a premium gradient save button. No functional changes.
