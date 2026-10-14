@@ -26,6 +26,8 @@ class Adminvoro_Security {
 	public function __construct() {
 		$this->options = Adminvoro::get_options();
 
+		add_filter( 'mod_rewrite_rules', array( $this, 'filter_mod_rewrite_rules' ) );
+
 		if ( ! empty( $this->options['disable_xmlrpc'] ) ) {
 			add_action( 'init', array( $this, 'block_xmlrpc_request' ), 0 );
 			add_filter( 'xmlrpc_enabled', '__return_false' );
@@ -52,6 +54,63 @@ class Adminvoro_Security {
 			add_filter( 'script_loader_src', array( $this, 'remove_wp_version_from_asset_url' ), 999 );
 			add_filter( 'style_loader_src', array( $this, 'remove_wp_version_from_asset_url' ), 999 );
 		}
+
+		if ( ! empty( $this->options['block_public_files'] ) ) {
+			add_action( 'parse_request', array( $this, 'block_public_file_request' ), 0 );
+		}
+	}
+
+	/**
+	 * Add an Apache rewrite rule before WordPress' existing-file bypass.
+	 *
+	 * @param string $rules Generated WordPress rewrite rules.
+	 * @return string
+	 */
+	public function filter_mod_rewrite_rules( $rules ) {
+		$options = Adminvoro::get_options();
+
+		if ( ( defined( 'ADMINVORO_DEACTIVATING' ) && ADMINVORO_DEACTIVATING ) || empty( $options['block_public_files'] ) ) {
+			return $rules;
+		}
+
+		$block_rule    = "RewriteRule ^(?:readme\\.html|license\\.txt)$ - [R=404,L,NC]\n";
+		$filtered_rules = preg_replace( '/(RewriteEngine On\s*)/', '${1}' . $block_rule, $rules, 1 );
+
+		return is_string( $filtered_rules ) ? $filtered_rules : $rules;
+	}
+
+	/**
+	 * Block public file requests that are routed through WordPress.
+	 *
+	 * @return void
+	 */
+	public function block_public_file_request() {
+		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+		$path        = wp_parse_url( $request_uri, PHP_URL_PATH );
+		$home_path   = wp_parse_url( home_url( '/' ), PHP_URL_PATH );
+
+		if ( ! is_string( $path ) ) {
+			return;
+		}
+
+		$path      = trim( $path, '/' );
+		$home_path = is_string( $home_path ) ? trim( $home_path, '/' ) : '';
+
+		if ( '' !== $home_path && ( $path === $home_path || 0 === strpos( $path, $home_path . '/' ) ) ) {
+			$path = ltrim( substr( $path, strlen( $home_path ) ), '/' );
+		}
+
+		if ( ! in_array( strtolower( $path ), array( 'readme.html', 'license.txt' ), true ) ) {
+			return;
+		}
+
+		status_header( 404 );
+		nocache_headers();
+		wp_die(
+			esc_html__( 'Not Found', 'adminvoro' ),
+			esc_html__( 'Not Found', 'adminvoro' ),
+			array( 'response' => 404 )
+		);
 	}
 
 	/**

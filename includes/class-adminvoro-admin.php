@@ -149,6 +149,11 @@ class Adminvoro_Admin {
 				$output['disable_xmlrpc']           = empty( $input['disable_xmlrpc'] ) ? 0 : 1;
 				$output['disable_user_enumeration'] = empty( $input['disable_user_enumeration'] ) ? 0 : 1;
 				$output['hide_wp_version']          = empty( $input['hide_wp_version'] ) ? 0 : 1;
+				$output['block_public_files']       = empty( $input['block_public_files'] ) ? 0 : 1;
+
+				if ( ! empty( $existing['block_public_files'] ) !== ! empty( $output['block_public_files'] ) ) {
+					add_action( 'shutdown', array( $this, 'flush_rewrite_rules_hard' ) );
+				}
 				break;
 			case 'performance':
 				$output['disable_emojis'] = empty( $input['disable_emojis'] ) ? 0 : 1;
@@ -475,6 +480,15 @@ class Adminvoro_Admin {
 	 */
 	public function flush_rewrite_rules() {
 		flush_rewrite_rules( false );
+	}
+
+	/**
+	 * Flush rewrite rules to the web server configuration.
+	 *
+	 * @return void
+	 */
+	public function flush_rewrite_rules_hard() {
+		flush_rewrite_rules( true );
 	}
 
 	/**
@@ -1061,6 +1075,7 @@ class Adminvoro_Admin {
 				$this->render_toggle( ADMINVORO_OPTION . '[disable_xmlrpc]', 'disable_xmlrpc', ! empty( $options['disable_xmlrpc'] ), esc_html__( 'Disable XML-RPC', 'adminvoro' ), esc_html__( 'Turns off XML-RPC authentication and remote publishing endpoints through WordPress filters.', 'adminvoro' ) );
 				$this->render_toggle( ADMINVORO_OPTION . '[disable_user_enumeration]', 'disable_user_enumeration', ! empty( $options['disable_user_enumeration'] ), esc_html__( 'Disable user enumeration', 'adminvoro' ), esc_html__( 'Blocks common ?author=1 discovery requests for logged-out visitors.', 'adminvoro' ) );
 				$this->render_toggle( ADMINVORO_OPTION . '[hide_wp_version]', 'hide_wp_version', ! empty( $options['hide_wp_version'] ), esc_html__( 'Hide WordPress version', 'adminvoro' ), esc_html__( 'Removes the generator meta tag and generator output.', 'adminvoro' ) );
+				$this->render_toggle( ADMINVORO_OPTION . '[block_public_files]', 'block_public_files', ! empty( $options['block_public_files'] ), esc_html__( 'Block public readme and license files', 'adminvoro' ), esc_html__( 'Blocks public access to /readme.html and /license.txt.', 'adminvoro' ) );
 				?>
 			</div>
 			<?php submit_button( esc_html__( 'Save Security Settings', 'adminvoro' ) ); ?>

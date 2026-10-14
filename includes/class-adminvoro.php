@@ -56,6 +56,10 @@ final class Adminvoro {
 	 * @return void
 	 */
 	public static function deactivate() {
+		if ( ! defined( 'ADMINVORO_DEACTIVATING' ) ) {
+			define( 'ADMINVORO_DEACTIVATING', true );
+		}
+
 		flush_rewrite_rules();
 	}
 
@@ -125,6 +129,7 @@ final class Adminvoro {
 			'disable_xmlrpc'              => 0,
 			'disable_user_enumeration'    => 0,
 			'hide_wp_version'             => 0,
+			'block_public_files'          => 0,
 			'disable_emojis'              => 0,
 			'disable_embeds'              => 0,
 			'enable_admin_footer_text'    => 0,
