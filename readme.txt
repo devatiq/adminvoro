@@ -63,11 +63,16 @@ These controls provide basic hardening only. Adminvoro Toolkit is not a firewall
 * Replace the default WordPress admin footer text with your own message.
 * Use basic permitted HTML formatting in the custom footer text.
 
+= Data Management =
+
+* Keep plugin settings and redirect rules when Adminvoro is deleted by default.
+* Optionally remove all saved plugin data during uninstall.
+
 = Lightweight and Focused =
 
 Adminvoro Toolkit is intended for administrators who want a focused collection of common site controls without installing a separate plugin for every small customization.
 
-All plugin data is removed when the plugin is deleted through WordPress.
+Plugin data is preserved by default when Adminvoro is deleted. Enable **Delete plugin data on uninstall** in the Data tab if you want deletion to remove all saved settings and redirect rules.
 
 == Installation ==
 
@@ -127,7 +132,7 @@ No. The plugin does not include a telemetry, tracking, or external API service. 
 
 = What happens to the settings when I delete the plugin? =
 
-When Adminvoro Toolkit is deleted through the WordPress Plugins screen, its saved settings and redirect rules are removed from the database.
+Adminvoro preserves its saved settings and redirect rules by default so they are available after reinstalling the plugin. To remove this data during deletion, enable **Delete plugin data on uninstall** in the Data tab before deleting the plugin.
 
 = Does it support WordPress Multisite? =
 
@@ -147,6 +152,8 @@ The plugin can be used on individual sites in a multisite installation. Settings
 = 1.2.0 =
 * Added a Basic Security option to block public access to `/readme.html` and `/license.txt`.
 * Blocked information-file requests now return a 403 Forbidden response.
+* Added a Data tab with an option to remove plugin data during uninstall.
+* Changed uninstall behavior to preserve settings and redirect rules by default.
 
 = 1.1.0 =
 * Improved Login Security tab UI/UX with a modern, premium design.

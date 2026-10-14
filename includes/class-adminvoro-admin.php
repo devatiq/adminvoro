@@ -163,6 +163,9 @@ class Adminvoro_Admin {
 				$output['enable_admin_footer_text'] = empty( $input['enable_admin_footer_text'] ) ? 0 : 1;
 				$output['custom_admin_footer_text'] = isset( $input['custom_admin_footer_text'] ) ? wp_kses_post( $input['custom_admin_footer_text'] ) : '';
 				break;
+			case 'data-management':
+				$output['delete_data_on_uninstall'] = empty( $input['delete_data_on_uninstall'] ) ? 0 : 1;
+				break;
 		}
 
 		return wp_parse_args( $output, Adminvoro::get_default_options() );
@@ -379,6 +382,9 @@ class Adminvoro_Admin {
 						break;
 					case 'admin-branding':
 						$this->render_admin_branding_tab( $options );
+						break;
+					case 'data-management':
+						$this->render_data_management_tab( $options );
 						break;
 					case 'login-security':
 					default:
@@ -683,11 +689,12 @@ class Adminvoro_Admin {
 		}
 
 		$messages = array(
-			'login-security' => __( 'Login security settings saved.', 'adminvoro' ),
-			'login-branding' => __( 'Login branding settings saved.', 'adminvoro' ),
-			'security'       => __( 'Security settings saved.', 'adminvoro' ),
-			'performance'    => __( 'Performance settings saved.', 'adminvoro' ),
-			'admin-branding' => __( 'Admin branding settings saved.', 'adminvoro' ),
+			'login-security'  => __( 'Login security settings saved.', 'adminvoro' ),
+			'login-branding'  => __( 'Login branding settings saved.', 'adminvoro' ),
+			'security'        => __( 'Security settings saved.', 'adminvoro' ),
+			'performance'     => __( 'Performance settings saved.', 'adminvoro' ),
+			'admin-branding'  => __( 'Admin branding settings saved.', 'adminvoro' ),
+			'data-management' => __( 'Data settings saved.', 'adminvoro' ),
 		);
 
 		return isset( $messages[ $tab ] ) ? $messages[ $tab ] : __( 'Settings saved.', 'adminvoro' );
@@ -1147,6 +1154,39 @@ class Adminvoro_Admin {
 	}
 
 	/**
+	 * Render Data Management tab.
+	 *
+	 * @param array $options Plugin options.
+	 * @return void
+	 */
+	private function render_data_management_tab( $options ) {
+		?>
+		<form method="post" action="options.php" class="adminvoro-form adminvoro-options-form">
+			<?php settings_fields( 'adminvoro_options_group' ); ?>
+			<input type="hidden" name="<?php echo esc_attr( ADMINVORO_OPTION ); ?>[active_tab]" value="data-management" />
+			<div class="adminvoro-card">
+				<div class="adminvoro-card-header">
+					<div>
+						<h2><?php esc_html_e( 'Data Management', 'adminvoro' ); ?></h2>
+						<p><?php esc_html_e( 'Control whether Adminvoro data is retained when the plugin is deleted.', 'adminvoro' ); ?></p>
+					</div>
+				</div>
+				<?php
+				$this->render_toggle(
+					ADMINVORO_OPTION . '[delete_data_on_uninstall]',
+					'delete_data_on_uninstall',
+					! empty( $options['delete_data_on_uninstall'] ),
+					esc_html__( 'Delete plugin data on uninstall', 'adminvoro' ),
+					esc_html__( 'When enabled, deleting Adminvoro removes all saved settings and redirect rules. Deactivation and normal updates never remove data.', 'adminvoro' )
+				);
+				?>
+			</div>
+			<?php submit_button( esc_html__( 'Save Data Settings', 'adminvoro' ) ); ?>
+		</form>
+		<?php
+	}
+
+	/**
 	 * Render a toggle control.
 	 *
 	 * @param string $name        Field name.
@@ -1217,12 +1257,13 @@ class Adminvoro_Admin {
 	 */
 	private function get_tabs() {
 		return array(
-			'login-security' => __( 'Login Security', 'adminvoro' ),
-			'login-branding' => __( 'Login Branding', 'adminvoro' ),
-			'redirects'      => __( 'Redirects', 'adminvoro' ),
-			'security'       => __( 'Security', 'adminvoro' ),
-			'performance'    => __( 'Performance', 'adminvoro' ),
-			'admin-branding' => __( 'Admin Branding', 'adminvoro' ),
+			'login-security'  => __( 'Login Security', 'adminvoro' ),
+			'login-branding'  => __( 'Login Branding', 'adminvoro' ),
+			'redirects'       => __( 'Redirects', 'adminvoro' ),
+			'security'        => __( 'Security', 'adminvoro' ),
+			'performance'     => __( 'Performance', 'adminvoro' ),
+			'admin-branding'  => __( 'Admin Branding', 'adminvoro' ),
+			'data-management' => __( 'Data', 'adminvoro' ),
 		);
 	}
 

@@ -134,6 +134,7 @@ final class Adminvoro {
 			'disable_embeds'              => 0,
 			'enable_admin_footer_text'    => 0,
 			'custom_admin_footer_text'    => '',
+			'delete_data_on_uninstall'    => 0,
 		);
 	}
 
