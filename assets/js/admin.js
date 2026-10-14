@@ -23,6 +23,12 @@
 			$field.find('input').prop('required', isCustom);
 		}
 
+		function togglePublicFilesNote() {
+			var isEnabled = $('#adminvoro-block_public_files').is(':checked');
+
+			$('.adminvoro-public-files-note').prop('hidden', !isEnabled);
+		}
+
 		function initSlugPreview() {
 			var $input = $('#adminvoro-login-slug-input');
 			var $preview = $('#adminvoro-slug-preview');
@@ -142,6 +148,7 @@
 			}
 
 			toggleCustomBlockUrlField();
+			togglePublicFilesNote();
 		}
 
 		$(document).on('click', '.adminvoro-form :submit', function () {
@@ -206,7 +213,9 @@
 		});
 
 		$(document).on('change', 'select[name="adminvoro_options[login_block_action]"]', toggleCustomBlockUrlField);
+		$(document).on('change', '#adminvoro-block_public_files', togglePublicFilesNote);
 		toggleCustomBlockUrlField();
+		togglePublicFilesNote();
 		initSlugPreview();
 
 		$('.adminvoro-upload-logo').on('click', function (event) {
